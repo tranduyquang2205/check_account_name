@@ -188,15 +188,15 @@ class ACB:
 #     check_bank_name =  acb.check_bank_name(account_number, bank_name, account_name), line
 #     return check_bank_name
 
-# username = "0366834895"
-# password = ""
-# account_number="28732497"
-# proxy_list = []
-# acb = ACB(username, password, account_number,proxy_list)
+username = "6560561"
+password = "Dqxkv2205.,"
+account_number="39888667"
+proxy_list = []
+acb = ACB(username, password, account_number,proxy_list)
 
-# login = acb.login()
+login = acb.login()
 
-# print(login)
+print(login)
 # with open('test_cases.txt', 'r',encoding="utf8") as file:
 #     lines = file.readlines()
 
