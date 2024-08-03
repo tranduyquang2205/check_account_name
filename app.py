@@ -127,7 +127,7 @@ def check_bank_name(input: BankInfo):
         start_time = time.time()
         
         try:
-            completion_event.wait(timeout=6)
+            completion_event.wait(timeout=7)
             try:
                 if result_container:
                     for result, bank in result_container:
@@ -161,7 +161,7 @@ def check_bank_name(input: BankInfo):
                 start_time = time.time()
                 
                 try:
-                    completion_event.wait(timeout=6)
+                    completion_event.wait(timeout=7)
                     try:
                         if result_container:
                             for result, bank in result_container:
@@ -169,10 +169,9 @@ def check_bank_name(input: BankInfo):
                                 if result is True:
                                     return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
                                 elif isinstance(result, str):
-                                    
                                     return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': bank.__class__.__name__})
                                 elif result == False or result is None:
-                                    continue
+                                    return APIResponse.json_format({'result': False, 'message': 'bank system error'})
                     except Exception as e:
                         response = str(e)
                         print(traceback.format_exc())
