@@ -7,7 +7,7 @@ import time
 import concurrent.futures
 
 class SHB:
-    def __init__(self, username, password, account_number,device_id,CIF_NO,ACTIVE_CODE,proxy_list=None):
+    def __init__(self, username, password, account_number,device_id,cif_no,active_code,proxy_list=None):
         self.clientId = 'iuSuHYVufIUuNIREV0FB9EoLn9kHsDbm'
         self.URL = {
             "SHB": "https://mbanking.shb.com.vn/mbgwretail/process_new.aspx",
@@ -17,9 +17,9 @@ class SHB:
         self.account_number = account_number
         self.file = f"data/shb/{username}.txt"
         self.TOKEN = ''
-        self.CIF_NO = CIF_NO
+        self.CIF_NO = cif_no
         self.ADJUST_ID = ''
-        self.ACTIVE_CODE = ACTIVE_CODE
+        self.ACTIVE_CODE = active_code
         self.device_id = device_id
         self.res = ''
         self.is_login = False
