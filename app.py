@@ -16,6 +16,8 @@ from seabank import SeaBank
 from techcombank_biz import Techcombank
 from vietabank import VietaBank
 from vietinbank import VTB
+from zalopay import Zalopay
+from shb import SHB
 from api_response import APIResponse
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -28,6 +30,8 @@ BANK_CLASSES = {
     'VTB': VTB,
     'SeaBank': SeaBank,
     'VietaBank': VietaBank,
+    'Zalopay': Zalopay,
+    'SHB': SHB,
 }
 bank_access_limits = {
     'ACB': {'limit': 1000000, 'interval': timedelta(minutes=1)},
@@ -35,7 +39,9 @@ bank_access_limits = {
     'Techcombank': {'limit': 1000000, 'interval': timedelta(minutes=1)},
     'VTB': {'limit': 2, 'interval': timedelta(minutes=1)},
     'SeaBank': {'limit': 1000000, 'interval': timedelta(minutes=1)},
-    'VietaBank': {'limit': 1000000, 'interval': timedelta(minutes=1)}
+    'VietaBank': {'limit': 1000000, 'interval': timedelta(minutes=1)},
+    'SHB': {'limit': 1000000, 'interval': timedelta(minutes=1)},
+    'Zalopay': {'limit': 10, 'interval': timedelta(hours=1)}
 }
 bank_access_log = defaultdict(list)
 
@@ -103,6 +109,7 @@ def check_bank_name(input: BankInfo):
                     future.cancel()
                 print('cancel')
             elif not completion_event.is_set() and result is False:
+                completion_event.set()
                 result_container.append((result, bank))
         except CancelledError:
             print(11111)
@@ -115,6 +122,7 @@ def check_bank_name(input: BankInfo):
         if len(available_banks) < 1:
             return APIResponse.json_format({'result': False, 'message': 'Not enough banks available'})
         selected_banks = random.sample(available_banks, min(1, len(available_banks))) 
+        remaining_banks = [bank for bank in banks if bank not in selected_banks]
         futures = [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in selected_banks]
         start_time = time.time()
         
@@ -141,9 +149,10 @@ def check_bank_name(input: BankInfo):
         all_false = all(result == False for result, bank in result_container)
         if all_false:
             print("Both tasks returned False, retrying...")
+            completion_event = threading.Event()
             result_container = []
             with ThreadPoolExecutor(max_workers=1) as executor:
-                available_banks = [bank for bank in banks if is_bank_available(bank.__class__.__name__)]
+                available_banks = [bank for bank in remaining_banks if is_bank_available(bank.__class__.__name__)]
                 if len(available_banks) < 1:
                     return APIResponse.json_format({'result': False, 'message': 'Not enough banks available'})
 

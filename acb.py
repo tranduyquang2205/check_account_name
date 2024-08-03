@@ -69,7 +69,7 @@ class ACB:
                 # print(login)
 
             count += 1
-            if count > 3:
+            if count > 2:
                 message = 'Connect false'
                 break
 
