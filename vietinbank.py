@@ -264,7 +264,7 @@ class VTB:
             params['sessionId'] = self.session_id
         return self.encrypt_data(params)
     def encrypt_data(self, data):
-        url = "https://babygroupvip.com/encrypt/api.php?act=encrypt_viettin"
+        url = "https://encrypt1.pay2world.vip/api.php?act=encrypt_viettin"
 
         payload = json.dumps(data)
         headers = {
@@ -386,28 +386,28 @@ class VTB:
                 return output_name
         return False
 
-# def process_line(line):
-#     parts = line.split()
-#     account_name = ' '.join(parts[:-2])
-#     account_number = parts[-2]
-#     bank_name = parts[-1]
-#     check_bank_name =  vtb.check_bank_name(account_number, bank_name, account_name), line
-#     return check_bank_name
+def process_line(line):
+    parts = line.split()
+    account_name = ' '.join(parts[:-2])
+    account_number = parts[-2]
+    bank_name = parts[-1]
+    check_bank_name =  vtb.check_bank_name(account_number, bank_name, account_name), line
+    return check_bank_name
 
-# username = "0886438795"
-# password = ""
-# account_number = "109879087651"
+username = "0886438795"
+password = "Dqxkv2205!"
+account_number = "109879087651"
 
 
-# vtb = VTB(username, password, account_number)
-# response = vtb.do_login()
-# print(response)
+vtb = VTB(username, password, account_number)
+response = vtb.do_login()
+print(response)
 
-# with open('test_cases.txt', 'r',encoding="utf8") as file:
-#     lines = file.readlines()
+with open('test_cases.txt', 'r',encoding="utf8") as file:
+    lines = file.readlines()
 
-# with concurrent.futures.ThreadPoolExecutor() as executor:
-#     futures = [executor.submit(process_line, line) for line in lines]
-#     for future in concurrent.futures.as_completed(futures):
-#         result, line = future.result()
-#         print(f'{line.strip()}, || {result}')
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    futures = [executor.submit(process_line, line) for line in lines]
+    for future in concurrent.futures.as_completed(futures):
+        result, line = future.result()
+        print(f'{line.strip()}, || {result}')
