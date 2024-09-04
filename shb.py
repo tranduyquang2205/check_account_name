@@ -88,7 +88,7 @@ class SHB:
             "PWD": hashlib.md5(self.password.encode()).hexdigest(),
             "DeviceName": "iPhone16,2",
             "DeviceId": "175eb1ae42c5441a91d135f142688491",
-            "AppVer": "5.19.0"
+            "AppVer": "5.21.0"
         }
 
         # Creating the formatted string
@@ -123,10 +123,10 @@ class SHB:
             'CIF_NO': self.CIF_NO,
             'PWD': hashlib.md5(self.password.encode()).hexdigest(),
             'ACTIVE_CODE': self.ACTIVE_CODE,
-            'APP_VER': '5.19.0',
+            'APP_VER': '5.21.0',
             'DeviceName': 'iPhone16,2',
             'DeviceId': self.device_id,
-            'AppVer': '5.19.0'
+            'AppVer': '5.21.0'
         }
         data = self.dict_to_str(data_dict)
         # print(data)
