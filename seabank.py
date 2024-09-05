@@ -50,6 +50,7 @@ class SeaBank:
             'account_number': self.account_number,
             'id_token': self.id_token,
             'username_id': self.username_id,
+            'account_number': self.account_number
         }
         with open(self.file, 'w') as f:
             json.dump(data, f)
@@ -63,6 +64,7 @@ class SeaBank:
             self.customerId = data.get('customerId', '')
             self.id_token = data.get('id_token', '')
             self.username_id = data.get('username_id', '')
+            self.account_number = data.get('account_number', '')
 
     def do_login(self):
         param = {
@@ -85,7 +87,7 @@ class SeaBank:
             "contextFull": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.100.0"
         }
         result = self.curl_post('https://ebankbackend.seanet.vn/canhan/api/authenticate-hash', param)
-        
+        result['success'] = False
         if result['code'] == '00':
             self.is_login = True
             self.time_login = time.time()
@@ -93,8 +95,9 @@ class SeaBank:
             self.username_id = result['data']['username']
             self.id_token = result['data']['id_token']
             self.customer_id = result['data']['customerId']
+            self.account_number = result['data']['mainAccount']
             self.save_data()
-        result['success'] = False
+        
         return result
     
     def check_bank_name_out(self,bank_code,account_number):
@@ -116,10 +119,10 @@ class SeaBank:
                 return bank['bin']
         return None
     def get_bank_name(self, ben_account_number, bank_name):
-        if not self.is_login or time.time() - self.time_login > 300:
+        if not self.is_login or time.time() - self.time_login > 1200:
             login = self.do_login()
             if not login['success']:
-                return None
+                return login
         if 'bank_name' == 'SeABank':
             return self.check_bank_name_in(ben_account_number)
         else:
@@ -217,9 +220,9 @@ class SeaBank:
 #     bank_name = parts[-1]
 #     check_bank_name =  seabank.check_bank_name(account_number, bank_name, account_name), line
 #     return check_bank_name
-# username = "1712552900"
+# username = ""
 # password = ""
-# account_number = "000000634470"
+# account_number = ""
 # seabank = SeaBank(username,password,account_number)
 
 # login = seabank.do_login()
