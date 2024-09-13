@@ -44,7 +44,7 @@ class ACB:
             if 'refreshToken' in response and response['refreshToken']:
                 self.refreshToken = response['refreshToken']
         else:
-            self.login()
+            print(self.login())
         return response
 
     def get_bank_name(self, ben_account_number, bank_name):
