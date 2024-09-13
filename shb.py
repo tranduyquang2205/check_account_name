@@ -39,6 +39,11 @@ class SHB:
             self.save_data()
         else:
             self.parse_data()
+            self.TOKEN = token
+            self.CIF_NO = cif_no
+            self.ACTIVE_CODE = active_code
+            
+
 
     def file_exists(self):
         try:
@@ -201,6 +206,7 @@ class SHB:
             'TOKEN': self.TOKEN
         }
         data = self.dict_to_str(request_dict)
+        # print(data)
         result = self.curl(data)
         if 'BEN_NAME' in result:
             result['customerName'] = result['BEN_NAME']
