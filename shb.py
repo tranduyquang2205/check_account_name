@@ -240,7 +240,7 @@ class SHB:
         return None
                     
     def get_bank_name(self, ben_account_number, bank_name):
-        if not self.is_login or time.time() - self.time_login > 900:
+        if not self.is_login or time.time() - self.time_login > 600:
             login = self.do_login()
             if not login['success']:
                 return login
@@ -266,7 +266,7 @@ class SHB:
         return no_accents.upper()
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
         get_name_from_account = self.get_bank_name(ben_account_number, bank_name)
-        print('get_name_from_account_SHB_'+self.username,get_name_from_account)
+        print('get_name_from_account_SHB_'+self.username,ben_account_number,get_name_from_account)
         if get_name_from_account and 'ERR_CODE' in get_name_from_account and get_name_from_account['ERR_CODE'] == "00" and ('customerName' in get_name_from_account) and get_name_from_account['customerName']:
             input_name = self.convert_to_uppercase_no_accents(ben_account_name).lower().strip()
             output_name = get_name_from_account['customerName'].lower().strip()
