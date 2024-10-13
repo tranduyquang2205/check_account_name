@@ -240,7 +240,7 @@ class SHB:
         return None
                     
     def get_bank_name(self, ben_account_number, bank_name):
-        if not self.is_login or time.time() - self.time_login > 600:
+        if not self.is_login or time.time() - self.time_login > 300:
             login = self.do_login()
             if not login['success']:
                 return login
