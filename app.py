@@ -30,7 +30,8 @@ WHITELISTED_IPS = [
     '202.92.7.227',
     '202.92.7.228',
     '3.0.239.143',
-    '202.92.7.230'
+    '202.92.7.230',
+    '115.75.209.253'
 ]
 class IPWhitelistMiddleware:
     def __init__(self, app: FastAPI, allowed_ips: List[str]):
@@ -104,6 +105,7 @@ def check_bank(bank, account_number, bank_name, account_name):
 
 app = FastAPI()
 app.middleware("http")(IPWhitelistMiddleware(app, WHITELISTED_IPS))
+
 class BankInfo(BaseModel):
     account_number: str
     bank_name: str
