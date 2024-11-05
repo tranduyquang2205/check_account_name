@@ -40,7 +40,7 @@ class IPWhitelistMiddleware:
     async def __call__(self, request: Request, call_next):
         client_ip = request.client.host
         if client_ip not in self.allowed_ips:
-            return HTTPException(status_code=503, detail="Unknow Error")
+            return APIResponse.json_format({'result': False, 'message': 'Unknown error!'})
         return await call_next(request)
 # Map the class names to the actual classes
 BANK_CLASSES = {
@@ -114,7 +114,7 @@ def check_bank_name(input: BankInfo):
     account_number = input.account_number
     bank_name = input.bank_name
     account_name = input.account_name
-    print(account_number, bank_name, account_name)
+    # print(account_number, bank_name, account_name)
     completion_event = threading.Event()
     result_container = []
     
