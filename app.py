@@ -94,7 +94,7 @@ def check_bank_name(input: BankInfo):
     account_number = input.account_number
     bank_name = input.bank_name
     account_name = input.account_name
-
+    print(account_number, bank_name, account_name)
     completion_event = threading.Event()
     result_container = []
     
