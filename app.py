@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException,HTTPException, Request
 from concurrent.futures import ThreadPoolExecutor, TimeoutError, CancelledError
 import uvicorn
 from pydantic import BaseModel
@@ -8,6 +8,7 @@ import configparser
 import sys
 import traceback
 import threading
+from typing import List
 
 # Import your bank classes
 from acb import ACB
@@ -21,7 +22,26 @@ from shb import SHB
 from api_response import APIResponse
 from datetime import datetime, timedelta
 from collections import defaultdict
+WHITELISTED_IPS = [
+    '103.57.223.111',
+    '103.56.163.65',
+    '103.57.223.209',
+    '103.57.220.100',
+    '202.92.7.227',
+    '202.92.7.228',
+    '3.0.239.143',
+    '202.92.7.230'
+]
+class IPWhitelistMiddleware:
+    def __init__(self, app: FastAPI, allowed_ips: List[str]):
+        self.app = app
+        self.allowed_ips = allowed_ips
 
+    async def __call__(self, request: Request, call_next):
+        client_ip = request.client.host
+        if client_ip not in self.allowed_ips:
+            return HTTPException(status_code=503, detail="Unknow Error")
+        return await call_next(request)
 # Map the class names to the actual classes
 BANK_CLASSES = {
     'ACB': ACB,
@@ -83,7 +103,7 @@ def check_bank(bank, account_number, bank_name, account_name):
         return False
 
 app = FastAPI()
-
+app.middleware("http")(IPWhitelistMiddleware(app, WHITELISTED_IPS))
 class BankInfo(BaseModel):
     account_number: str
     bank_name: str
