@@ -31,7 +31,9 @@ WHITELISTED_IPS = [
     '202.92.7.228',
     '3.0.239.143',
     '202.92.7.230',
-    '115.75.209.253'
+    '115.75.209.253',
+    '127.0.0.1',
+    '0.0.0.0'
 ]
 class IPWhitelistMiddleware:
     def __init__(self, app: FastAPI, allowed_ips: List[str]):
