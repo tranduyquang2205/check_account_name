@@ -384,6 +384,8 @@ class VTB:
                 return True
             else:
                 return output_name
+        self.is_login = False
+        self.save_data()
         return False
 
 # def process_line(line):
