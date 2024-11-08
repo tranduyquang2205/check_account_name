@@ -178,7 +178,7 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
         url_1 = 'https://captcha.pay2world.vip//mbbiz'
         url_2 = 'https://captcha1.pay2world.vip//mbbiz'
         url_3 = 'https://captcha2.pay2world.vip//mbbiz'
-        
+        print(base64_img)
         payload = json.dumps({
         "image_base64": base64_img
         })

@@ -1040,9 +1040,16 @@ class Techcombank:
         bank_code = self.mapping_bank_code(bank_name)
         info_bank = mapping_bank_code_tcb(bank_code)
         if bank_name == 'Techcombank':
-            return self.get_name(ben_account_number, info_bank['napas'],"TCB_ALIAS_PAYMENTS")
+            result =  self.get_name(ben_account_number, info_bank['napas'],"TCB_ALIAS_PAYMENTS")
         else:
-            return self.get_name(ben_account_number, info_bank['napas'],"TCB_NAPAS_PAYMENTS")
+            result = self.get_name(ben_account_number, info_bank['napas'],"TCB_NAPAS_PAYMENTS")
+        if 'beneficiaryName' not in result:
+            techcombank_login(self)
+            if bank_name == 'Techcombank':
+                result =  self.get_name(ben_account_number, info_bank['napas'],"TCB_ALIAS_PAYMENTS")
+            else:
+                result = self.get_name(ben_account_number, info_bank['napas'],"TCB_NAPAS_PAYMENTS")
+        return result
         
     def convert_to_uppercase_no_accents(self,text):
         # Remove accents
