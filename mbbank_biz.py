@@ -15,6 +15,12 @@ from datetime import datetime
 import random
 import concurrent.futures
 import unidecode
+from bypass_ssl_v3 import get_legacy_session
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+session_requests = get_legacy_session()
 
 
 class MBBANK:
