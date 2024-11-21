@@ -60,7 +60,7 @@ BANK_CLASSES = {
 }
 bank_access_limits = {
     'ACB': {'limit': 20, 'interval': timedelta(minutes=1)},
-    'MBBANK': {'limit': 1, 'interval': timedelta(seconds=5)},
+    'MBBANK': {'limit': 1, 'interval': timedelta(seconds=10)},
     'Techcombank': {'limit': 1000000, 'interval': timedelta(minutes=1)},
     'VTB': {'limit': 1, 'interval': timedelta(minutes=1)},
     'SeaBank': {'limit': 30, 'interval': timedelta(minutes=1)},
