@@ -204,6 +204,7 @@ class SHB:
             response = self.session.post(self.URL['SHB'], headers=headers, data=data,proxies=self.proxies,verify=False,timeout=7)
             return self.parse_response(response.text)
         except Exception as e:
+            print('reason change proxy',e)
             self.change_proxy()
             return None
 
