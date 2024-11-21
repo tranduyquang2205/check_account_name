@@ -133,7 +133,16 @@ class SHB:
         )
         result = result.replace("REQ%23","REQ=")
         return result
+    def change_proxy(self):
+        print('change_proxy')
+        self.proxy_info = random.choice([item for item in self.proxy_list if item not in [self.proxy_info]])
+        proxy_host, proxy_port, username_proxy, password_proxy = self.proxy_info.split(':')
+        self.proxies = {
+            'http': f'http://{username_proxy}:{password_proxy}@{proxy_host}:{proxy_port}',
+            'https': f'http://{username_proxy}:{password_proxy}@{proxy_host}:{proxy_port}'
+        }
     def do_login(self):
+        self.change_proxy()
         data_dict = {
             'REQ': 'CMD#CHECK_LOGIN',
             'CIF_NO': self.CIF_NO,
@@ -145,9 +154,7 @@ class SHB:
             'AppVer': '5.22.1'
         }
         data = self.dict_to_str(data_dict)
-        print(data)
         res = self.curl(data)
-        print(res)
         res['success'] = False
         if res['ERR_CODE'] == "00":
             self.is_login = True
@@ -192,9 +199,13 @@ class SHB:
         return res
 
     def curl(self, data):
-        headers = self.header_default()
-        response = self.session.post(self.URL['SHB'], headers=headers, data=data,proxies=self.proxies,verify=False)
-        return self.parse_response(response.text)
+        try:
+            headers = self.header_default()
+            response = self.session.post(self.URL['SHB'], headers=headers, data=data,proxies=self.proxies,verify=False,timeout=7)
+            return self.parse_response(response.text)
+        except Exception as e:
+            self.change_proxy()
+            return None
 
     def parse_response(self, msg):
         msg = msg.replace("<MSG>", "").replace("</MSG>", "")
