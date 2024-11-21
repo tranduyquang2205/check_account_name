@@ -5,6 +5,7 @@ import urllib.parse
 import unidecode
 import time
 import concurrent.futures
+import random
 
 class SHB:
     def __init__(self, username, password, account_number,device_id,cif_no,active_code,token=None,proxy_list=None):
@@ -26,7 +27,7 @@ class SHB:
         self.time_login = time.time()
         self.proxy_list = proxy_list
         if self.proxy_list:
-            self.proxy_info = self.proxy_list.pop(0)
+            self.proxy_info = random.choice(self.proxy_list)
             proxy_host, proxy_port, username_proxy, password_proxy = self.proxy_info.split(':')
             self.proxies = {
                 'http': f'socks5://{username_proxy}:{password_proxy}@{proxy_host}:{proxy_port}',
@@ -42,6 +43,11 @@ class SHB:
             self.TOKEN = token
             self.CIF_NO = cif_no
             self.ACTIVE_CODE = active_code
+            self.account_number = account_number
+            self.username = username
+            self.password = password
+            self.save_data()
+
             
 
 
@@ -129,12 +135,12 @@ class SHB:
             'PWD': hashlib.md5(self.password.encode()).hexdigest(),
             'ACTIVE_CODE': self.ACTIVE_CODE,
             'APP_VER': '5.22.1',
-            'DeviceName': 'iPhone16,2',
+            'DeviceName': 'iPhone17,2',
             'DeviceId': self.device_id,
             'AppVer': '5.22.1'
         }
         data = self.dict_to_str(data_dict)
-        # print(data)
+        print(data)
         res = self.curl(data)
         print(res)
         res['success'] = False
