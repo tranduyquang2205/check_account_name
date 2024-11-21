@@ -142,7 +142,7 @@ class SHB:
             'https': f'http://{username_proxy}:{password_proxy}@{proxy_host}:{proxy_port}'
         }
     def do_login(self):
-        self.change_proxy()
+        # self.change_proxy()
         data_dict = {
             'REQ': 'CMD#CHECK_LOGIN',
             'CIF_NO': self.CIF_NO,
