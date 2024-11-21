@@ -256,15 +256,15 @@ class SHB:
         else:
             bank_code = self.mapping_bank_code(bank_name)
             result =  self.check_bank_name_out(bank_code,ben_account_number)
-        if 'ERR_DESC' in result and result['ERR_DESC'] == 'TOKEN INVALID':
-            login = self.do_login()
-            if not login['success']:
-                return login
-        if bank_name == 'SHB':
-            result =  self.check_bank_name_in(ben_account_number)
-        else:
-            bank_code = self.mapping_bank_code(bank_name)
-            result =  self.check_bank_name_out(bank_code,ben_account_number)
+        # if 'ERR_DESC' in result and result['ERR_DESC'] == 'TOKEN INVALID':
+        #     login = self.do_login()
+        #     if not login['success']:
+        #         return login
+        # if bank_name == 'SHB':
+        #     result =  self.check_bank_name_in(ben_account_number)
+        # else:
+        #     bank_code = self.mapping_bank_code(bank_name)
+        #     result =  self.check_bank_name_out(bank_code,ben_account_number)
         return result
     def convert_to_uppercase_no_accents(self,text):
         # Remove accents
