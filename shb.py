@@ -30,8 +30,8 @@ class SHB:
             self.proxy_info = random.choice(self.proxy_list)
             proxy_host, proxy_port, username_proxy, password_proxy = self.proxy_info.split(':')
             self.proxies = {
-                'http': f'socks5://{username_proxy}:{password_proxy}@{proxy_host}:{proxy_port}',
-                'https': f'socks5://{username_proxy}:{password_proxy}@{proxy_host}:{proxy_port}'
+                'http': f'http://{username_proxy}:{password_proxy}@{proxy_host}:{proxy_port}',
+                'https': f'http://{username_proxy}:{password_proxy}@{proxy_host}:{proxy_port}'
             }
         else:
             self.proxies = None
