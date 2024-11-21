@@ -1,4 +1,3 @@
-import requests
 import json
 import hashlib
 import urllib.parse
@@ -7,6 +6,11 @@ import time
 import concurrent.futures
 import random
 
+from bypass_ssl_v3 import get_legacy_session
+import urllib3
+
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 class SHB:
     def __init__(self, username, password, account_number,device_id,cif_no,active_code,token=None,proxy_list=None):
         self.clientId = 'iuSuHYVufIUuNIREV0FB9EoLn9kHsDbm'
@@ -18,6 +22,7 @@ class SHB:
         self.account_number = account_number
         self.file = f"data/shb/{username}.txt"
         self.TOKEN = token
+        self.session = get_legacy_session()
         self.CIF_NO = cif_no
         self.ADJUST_ID = ''
         self.ACTIVE_CODE = active_code
@@ -188,7 +193,7 @@ class SHB:
 
     def curl(self, data):
         headers = self.header_default()
-        response = requests.post(self.URL['SHB'], headers=headers, data=data,proxies=self.proxies)
+        response = self.session.post(self.URL['SHB'], headers=headers, data=data,proxies=self.proxies,verify=False)
         return self.parse_response(response.text)
 
     def parse_response(self, msg):
