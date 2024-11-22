@@ -19,6 +19,7 @@ from techcombank_biz import Techcombank
 from vietabank import VietaBank
 from vietinbank import VTB
 from zalopay import Zalopay
+from ocb import OCB
 from shb import SHB
 from api_response import APIResponse
 from datetime import datetime, timedelta
@@ -57,6 +58,7 @@ BANK_CLASSES = {
     'VietaBank': VietaBank,
     'Zalopay': Zalopay,
     'SHB': SHB,
+    'OCB': OCB,
 }
 bank_access_limits = {
     'ACB': {'limit': 20, 'interval': timedelta(minutes=1)},
@@ -66,7 +68,8 @@ bank_access_limits = {
     'SeaBank': {'limit': 30, 'interval': timedelta(minutes=1)},
     'VietaBank': {'limit': 1000000, 'interval': timedelta(minutes=1)},
     'SHB': {'limit': 60, 'interval': timedelta(minutes=1)},
-    'Zalopay': {'limit': 10, 'interval': timedelta(hours=1)}
+    'Zalopay': {'limit': 10, 'interval': timedelta(hours=1)},
+    'OCB': {'limit': 1000000, 'interval': timedelta(minutes=1)}
 }
 bank_access_log = defaultdict(list)
 
