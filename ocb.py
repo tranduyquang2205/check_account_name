@@ -288,6 +288,7 @@ class OCB:
             }
         elif 'Xác thực đăng nhập' in result:
             request_login_result,request_url = self.send_request_login(url)
+            print('Xác thực đăng nhập')
             if 'Chúng tôi đã gửi yêu cầu xác thực tới thiết bị đăng ký của bạn, vui lòng kiểm tra và xác thực trong 2 phút.' in request_login_result:
                    return {
                         'success': True,
@@ -843,6 +844,7 @@ class OCB:
     def login_ocb(self,ben_account_number=None, bank_name=None):
         login = self.do_login()
         if login and 'success' in login and login['success']:
+            print('waiting')
             if 'waiting' in login and login['waiting']:
                 url = login['url']
                 i = 1
