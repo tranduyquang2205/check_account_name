@@ -104,3 +104,7 @@ data/*.txt
 data/*.json
 data/*/*.txt
 data/*/*.json
+data/*/*/*.json
+data/*
+data\ocb\cookies\*.json
+data\ocb\users\*.json
