@@ -828,6 +828,7 @@ class OCB:
         else:
             result =  self.check_bank_name_out(ben_account_number,bank_name)
         if 'accountHolderName' not in result:
+            print(result)
             return self.login_ocb(ben_account_number, bank_name)
         return result
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
