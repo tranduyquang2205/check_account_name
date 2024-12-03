@@ -755,7 +755,8 @@ class OCB:
             return {
             'success': False,
             'message': 'Please relogin!',
-            'code': 401
+            'code': 401,
+            'data':response.json()
         }
     def mapping_bank_code(self,bank_name):
         with open('banks.json','r', encoding='utf-8') as f:
