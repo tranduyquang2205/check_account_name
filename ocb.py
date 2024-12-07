@@ -10,9 +10,11 @@ from requests.cookies import RequestsCookieJar
 import string
 from urllib.parse import urlparse, parse_qs
 import unidecode
+from itertools import cycle
 class OCB:
     def __init__(self, username, password, account_number,proxy_list=None):
         self.proxy_list = proxy_list
+        self.proxy_cycle = cycle(proxy_list)
         if self.proxy_list:
             self.proxy_info = random.choice(self.proxy_list)
             proxy_host, proxy_port, username_proxy, password_proxy = self.proxy_info.split(':')
@@ -119,6 +121,33 @@ class OCB:
                 return
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             return requests.cookies.RequestsCookieJar()
+    def change_proxy(self):
+            print('change_proxy')
+            self.proxy_info = next(self.proxy_cycle)  # Lấy proxy kế tiếp từ vòng lặp
+            proxy_host, proxy_port, username_proxy, password_proxy = self.proxy_info.split(':')
+            self.proxies = {
+                'http': f'http://{username_proxy}:{password_proxy}@{proxy_host}:{proxy_port}',
+                'https': f'http://{username_proxy}:{password_proxy}@{proxy_host}:{proxy_port}'
+            }
+            print(f"New proxy: {self.proxies}")
+    def curl_post(self, url,headers,data,proxies=None):
+        try:
+        
+            response = self.session.post(url, headers=headers, data=data,proxies=proxies,verify=False,timeout=7)
+            return response
+        except Exception as e:
+            print('reason change proxy',e)
+            self.change_proxy()
+            return None
+    def curl_get(self, url,headers,proxies=None):
+        try:
+            
+            response = self.session.get(url, headers=headers,proxies=proxies,verify=False,timeout=7)
+            return response
+        except Exception as e:
+            print('reason change proxy',e)
+            self.change_proxy()
+            return None
     def get_login_url(self):
         headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -152,7 +181,7 @@ class OCB:
         url = f"{base_url}?{query_string}"
 
         self.load_cookies()
-        res = self.session.get(url, headers=headers,proxies=self.proxies)
+        res = self.curl_get(url, headers=headers,proxies=self.proxies)
         # print(url,res)
         # print(res.url)
         session_state,code = self.get_session_and_code(res.url)
@@ -185,7 +214,7 @@ class OCB:
             'otpChoice': 'PUSH_DEVICE',
         }
         self.load_cookies()
-        res = self.session.post(request_url,headers=headers, data=data,proxies=self.proxies)
+        res = self.curl_post(request_url,headers=headers, data=data,proxies=self.proxies)
         # with open("request_login.html", "w", encoding="utf-8") as file:
         #     file.write(res.text)
         self.save_cookies(self.session.cookies)
@@ -219,7 +248,7 @@ class OCB:
             'rememberMe': 'on'
         }
         self.load_cookies()
-        res = self.session.post(login_url,headers=headers, data=data,proxies=self.proxies)
+        res = self.curl_post(login_url,headers=headers, data=data,proxies=self.proxies)
         # with open("login_request.html", "w", encoding="utf-8") as file:
         #     file.write(res.text)
         self.save_cookies(self.session.cookies)
@@ -332,7 +361,7 @@ class OCB:
             'oob-authn-action': 'confirmation-poll'
         }
         self.load_cookies()
-        res = self.session.post(url, headers=headers,data=data,proxies=self.proxies)
+        res = self.curl_post(url, headers=headers,data=data,proxies=self.proxies)
         self.save_cookies(self.session.cookies)
         result = res.text
 
@@ -357,7 +386,7 @@ class OCB:
             'oob-authn-action': 'confirmation-continue'
         }
         self.load_cookies()
-        response = self.session.post(url, headers=headers,data=data,allow_redirects=False,proxies=self.proxies)
+        response = self.curl_post(url, headers=headers,data=data,allow_redirects=False,proxies=self.proxies)
         self.save_cookies(self.session.cookies)
         if response.status_code == 302:
             new_url = response.headers.get('Location')
@@ -392,7 +421,7 @@ class OCB:
 
         url = 'https://identity-omni.ocb.com.vn/auth/realms/backbase/protocol/openid-connect/token'
         self.load_cookies()
-        response = self.session.post(url, headers=headers, data=data,proxies=self.proxies)
+        response = self.curl_post(url, headers=headers, data=data,proxies=self.proxies)
         self.save_cookies(self.session.cookies)
         result = response.json()
 
@@ -427,7 +456,7 @@ class OCB:
         
         self.load_cookies()
         # print(url)
-        res = self.session.get(url, headers=headers,proxies=self.proxies)
+        res = self.curl_get(url, headers=headers,proxies=self.proxies)
         self.save_cookies(self.session.cookies)
         # print(res.url)
         # with open("logout.html", "w", encoding="utf-8") as file:
@@ -461,7 +490,7 @@ class OCB:
             'ui_locales': 'vi'
         }
         self.load_cookies()
-        response = self.session.post('https://identity-omni.ocb.com.vn/auth/realms/backbase/protocol/openid-connect/token', data=data, headers=headers,proxies=self.proxies)
+        response = self.curl_post('https://identity-omni.ocb.com.vn/auth/realms/backbase/protocol/openid-connect/token', data=data, headers=headers,proxies=self.proxies)
         self.save_cookies(self.session.cookies)
         result = response.json()
         if 'access_token' in result:
@@ -490,7 +519,7 @@ class OCB:
 
         self.load_cookies()
         url = 'https://ocbomni.ocb.com.vn/api/arrangement-manager/client-api/v2/arrangement-views/account-overview/groups/current-account-vnd?_limit=100'
-        response = self.session.get(url, headers=headers,proxies=self.proxies)
+        response = self.curl_get(url, headers=headers,proxies=self.proxies)
         self.save_cookies(self.session.cookies)
         if response.status_code == 200:
             result = response.json()
@@ -524,7 +553,7 @@ class OCB:
 
         url = f'https://ocbomni.ocb.com.vn/api/sync-dis/client-api/v1/transactions/refresh/arrangements'
         self.load_cookies()
-        response = self.session.post(url, headers=headers, data=payload,proxies=self.proxies)
+        response = self.curl_post(url, headers=headers, data=payload,proxies=self.proxies)
         self.save_cookies(self.session.cookies)
         return response
     def sync(self):
@@ -555,7 +584,7 @@ class OCB:
 
         url = f'https://ocbomni.ocb.com.vn/api/bb-ingestion-service/client-api/v2/accounts/sync'
         self.load_cookies()
-        response = self.session.post(url, headers=headers, data=payload,proxies=self.proxies)
+        response = self.curl_post(url, headers=headers, data=payload,proxies=self.proxies)
         self.save_cookies(self.session.cookies)
         return response
     def get_transactions(self, from_date="2022-11-15", to_date="2022-12-03",limit=100):
@@ -607,7 +636,7 @@ class OCB:
 
         url = f'https://ocbomni.ocb.com.vn/api/transaction-manager/client-api/v2/transactions?bookingDateGreaterThan={from_date}&bookingDateLessThan={to_date}&arrangementId={self.id}&from={page}&size={limit}&orderBy=bookingDate&direction=DESC'
         self.load_cookies()
-        response = self.session.get(url, headers=headers,proxies=self.proxies)
+        response = self.curl_get(url, headers=headers,proxies=self.proxies)
         self.save_cookies(self.session.cookies)
         # with open("transaction"+str(page)+".html", "w", encoding="utf-8") as file:
         #     file.write(response.text)
@@ -744,7 +773,7 @@ class OCB:
             'transferType':'INTERNAL_TRANSFER'
         }
         self.load_cookies()
-        response = self.session.post(url,headers=headers, data=data,proxies=self.proxies)
+        response = self.curl_post(url,headers=headers, data=data,proxies=self.proxies)
         self.save_cookies(self.session.cookies)
         # with open("transaction"+str(page)+".html", "w", encoding="utf-8") as file:
         #     file.write(response.text)
