@@ -130,10 +130,10 @@ class OCB:
                 'https': f'http://{username_proxy}:{password_proxy}@{proxy_host}:{proxy_port}'
             }
             print(f"New proxy: {self.proxies}")
-    def curl_post(self, url,headers,data,proxies=None):
+    def curl_post(self, url,headers,data,proxies=None,allow_redirects=False):
         try:
-        
-            response = self.session.post(url, headers=headers, data=data,proxies=proxies,verify=False,timeout=7)
+            
+            response = self.session.post(url, headers=headers, data=data,proxies=proxies,verify=False,timeout=7,allow_redirects=allow_redirects)
             return response
         except Exception as e:
             print('reason change proxy',e)
