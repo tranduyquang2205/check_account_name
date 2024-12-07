@@ -67,9 +67,9 @@ bank_access_limits = {
     'VTB': {'limit': 1, 'interval': timedelta(minutes=1)},
     'SeaBank': {'limit': 30, 'interval': timedelta(minutes=1)},
     'VietaBank': {'limit': 1000000, 'interval': timedelta(minutes=1)},
-    'SHB': {'limit': 60, 'interval': timedelta(minutes=1)},
+    'SHB': {'limit': 1000000, 'interval': timedelta(minutes=1)},
     'Zalopay': {'limit': 10, 'interval': timedelta(hours=1)},
-    'OCB': {'limit': 60, 'interval': timedelta(minutes=1)}
+    'OCB': {'limit': 1000000, 'interval': timedelta(minutes=1)}
 }
 bank_access_log = defaultdict(list)
 
