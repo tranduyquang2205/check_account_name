@@ -14,7 +14,7 @@ from itertools import cycle
 class OCB:
     def __init__(self, username, password, account_number,proxy_list=None):
         self.proxy_list = proxy_list
-        self.proxy_cycle = cycle(proxy_list)
+        self.proxy_cycle = cycle(self.proxy_list) if self.proxy_list else None
         if self.proxy_list:
             self.proxy_info = random.choice(self.proxy_list)
             proxy_host, proxy_port, username_proxy, password_proxy = self.proxy_info.split(':')
@@ -123,6 +123,10 @@ class OCB:
             return requests.cookies.RequestsCookieJar()
     def change_proxy(self):
             print('change_proxy')
+            if not self.proxy_cycle:
+                print("No proxies available. Setting self.proxies to None.")
+                self.proxies = None
+                return
             self.proxy_info = next(self.proxy_cycle)  # Lấy proxy kế tiếp từ vòng lặp
             proxy_host, proxy_port, username_proxy, password_proxy = self.proxy_info.split(':')
             self.proxies = {
