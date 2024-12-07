@@ -11,6 +11,8 @@ import string
 from urllib.parse import urlparse, parse_qs
 import unidecode
 from itertools import cycle
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 class OCB:
     def __init__(self, username, password, account_number,proxy_list=None):
         self.proxy_list = proxy_list
