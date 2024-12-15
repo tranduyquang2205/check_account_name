@@ -414,10 +414,9 @@ class BVBank:
             login = await self.login(relogin=True)
             print(login)
         response = self.base_request_get(f'https://digibank.bvbank.net.vn/setting/find-info-beneficiary/get-recipient-name/{account_number}')
-        print(response.text)
-        if response:
+        if response and 'Please enable JavaScript to view the page content' not in response.text:
             return {
-                'customerName': response
+                'customerName': response.text
             }
         else:
             self.is_login = False
