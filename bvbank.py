@@ -157,6 +157,7 @@ class BVBank:
 
             # Update the session cookies with the cookie_dict (name: value format)
             self.session.cookies.update(cookie_dict)
+            await browser.close()
             return cookie_dict
 
         finally:
