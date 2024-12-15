@@ -316,7 +316,11 @@ class BVBank:
             self.is_login = True
             self.time_login = time.time()
             self.save_data()
-            return await self.get_balance(self.account_number)
+            return {
+                'success': True,
+                'code': 200,\
+                'message': 'Đăng nhập thành công!'
+            }
         else:
             error_message = self.extract_error_message(response.text)
             print(error_message)
@@ -366,43 +370,6 @@ class BVBank:
             if not retry:
                 return await self.get_balance(account_number,retry=True)
             return {'code':500 ,'success': False, 'message': 'Unknown Error!','data':response.text} 
-
-
-    async def get_transactions(self,account_number,fromDate,toDate,latest=False,retry=False):
-        if not self.is_login or time.time() - self.time_login > 9000:
-            self.is_login = True
-            self.save_data()
-            login = await self.login()
-            if not login['success']:
-                return login
-        if latest:
-            url = f'https://digibank.bvbank.net.vn/account/quick-search/CASA/{account_number}/gdgn?_={str(int(time.time() * 1000))}'
-        else:
-            url = f'https://digibank.bvbank.net.vn/account/search-by-date/CASA/{account_number}/{fromDate}/{toDate}?_={str(int(time.time() * 1000))}'
-        response = self.base_request_get(url)
-        # with open("transaction.html", "w", encoding="utf-8") as file:
-        #     file.write(response.text)
-        try:
-            response = response.json()
-        except:
-            self.is_login = False
-            self.save_data()
-            if not retry:
-                return await self.get_transactions(account_number,fromDate,toDate,latest,retry=True)
-            return {'code':500 ,'success': False, 'message': 'Unknown Error!','data':response.text} 
-        # transactions =  self.extract_transaction_history(response.text)
-        if  'response' in response:
-            return {'code':200,'success': True, 'message': 'Thành công',
-                    'data':{
-                        'transactions':response['response'],
-            }}
-        else:
-            return {'code':200,'success': True, 'message': 'Thành công',
-                    'data':{
-                        'message': 'No data',
-                        'transactions':[],
-                        'response':response
-            }}
 
     async def check_bank_name_in(self,account_number,retry=False):
         if not self.is_login or time.time() - self.time_login > 9000:
