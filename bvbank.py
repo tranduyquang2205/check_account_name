@@ -15,6 +15,7 @@ from pyppeteer import launch
 import asyncio
 from itertools import cycle
 import random
+import gc
 
 import unidecode
 class BVBank:
@@ -111,59 +112,50 @@ class BVBank:
             print(f"New proxy: {self.proxies}")
     async def get_cookies(self):
         cookie_dict = {}
-        # Launch the browser
-        if self.proxies:
-            http_proxy = self.proxies.get('http')
-            https_proxy = self.proxies.get('https')
-
-            # Extract proxy details (host, port, username, password)
-            # Assuming the format is: http://username:password@host:port
-            proxy_url = http_proxy or https_proxy  # Use either HTTP or HTTPS proxy
-            proxy_parts = proxy_url.replace('http://', '').split('@')
-            credentials, proxy_address = proxy_parts[0], proxy_parts[1]
-            proxy_username, proxy_password = credentials.split(':')
-            host, port = proxy_address.split(':')
-        if self.proxies:
-            browser = await launch(headless=True,        
-                                args=[
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                f'--proxy-server=http://{host}:{port}'  # Set proxy
-            ])
-        else:
-            browser = await launch(headless=True)
-        page = await browser.newPage()
-        if self.proxies:
-            await page.authenticate({
-                    'username': proxy_username,
-                    'password': proxy_password
-                })
+        browser = None
+        page = None
         try:
+            # Initialize browser with proxy settings if available
+            if self.proxies:
+                http_proxy = self.proxies.get('http')
+                proxy_url = http_proxy or self.proxies.get('https')
+                proxy_parts = proxy_url.replace('http://', '').split('@')
+                credentials, proxy_address = proxy_parts[0], proxy_parts[1]
+                proxy_username, proxy_password = credentials.split(':')
+                host, port = proxy_address.split(':')
+
+                browser = await launch(
+                    headless=True,
+                    args=[
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        f'--proxy-server=http://{host}:{port}',
+                    ]
+                )
+            else:
+                browser = await launch(headless=True)
+
+            page = await browser.newPage()
+            if self.proxies:
+                await page.authenticate({'username': proxy_username, 'password': proxy_password})
+
             await page.goto('https://digibank.bvbank.net.vn/login')
-
-            # Wait for a specific element to appear (can replace 'body' with a more specific selector)
             await page.waitForSelector('body > div > main > div > section > div.content-wrap.sme-register-form > div > div > div:nth-child(1) > h2')
-            # Optionally, you can also wait for the network to be idle
-            # await page.waitForNavigation({'waitUntil': 'networkidle0'})  # Wait for the network to idle (no active connections)
 
-            # Retrieve cookies
+            # Extract and save cookies
             cookies = await page.cookies()
-
-            # Create a dictionary of cookie names and values
             cookie_dict = {cookie['name']: cookie['value'] for cookie in cookies}
-
-            # Print the cookies for debugging
-            # print(cookies)  # This will print a list of cookies with all their details
-
-            # Update the session cookies with the cookie_dict (name: value format)
             self.session.cookies.update(cookie_dict)
-            await browser.close()
-            return cookie_dict
 
         finally:
-        # Close the browser
-            await browser.close()
-            return cookie_dict        
+            # Ensure browser and page are closed
+            if page:
+                await page.close()
+            if browser:
+                await browser.close()
+            gc.collect()  # Trigger garbage collection
+
+        return cookie_dict   
 
     def extract_text_from_td(self,td_string):
         return re.sub(r"<[^>]*>", "", td_string).strip()
