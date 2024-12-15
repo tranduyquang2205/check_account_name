@@ -145,55 +145,31 @@ async def check_bank_name(input: BankInfo):
                 result_container.append((result, bank))
                 completion_event.set()
                 log_bank_access(bank.__class__.__name__)
-
+                for future in futures:
+                    future.cancel()
+                print('cancel')
             elif not completion_event.is_set() and result is False:
                 completion_event.set()
                 result_container.append((result, bank))
         except CancelledError:
+            print(11111)
             pass
         except Exception as e:
             print(f"Error processing bank {bank}: {e}")
 
-    available_banks = [bank for bank in banks if is_bank_available(bank.__class__.__name__)]
-    if len(available_banks) < 1:
-        return APIResponse.json_format({'result': False, 'message': 'Not enough banks available'})
-    selected_banks = random.sample(available_banks, min(1, len(available_banks))) 
-    print(selected_banks)
-    remaining_banks = [bank for bank in banks if bank not in selected_banks]
-    
-    await task_wrapper(selected_banks[0], account_number, bank_name, account_name)
-    
-    try:
-        completion_event.wait(timeout=7)
-        try:
-            if result_container:
-                for result, bank in result_container:
-                    print(f'result_{bank.__class__.__name__}', result)
-                    if result is True:
-                        return (APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__}))
-                    elif isinstance(result, str):
-                        return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': bank.__class__.__name__})
-                    elif result == False or result is None:
-                        continue
-        except Exception as e:
-            response = str(e)
-            print(traceback.format_exc())
-            print(sys.exc_info()[2])
-            return APIResponse.json_format(response)
-    except TimeoutError:
-        return APIResponse.json_format({'result': False, 'message': 'timeout'})
-
-    all_false = all(result == False for result, bank in result_container)
-    if all_false:
-        print("Both tasks returned False, retrying...")
-        completion_event = threading.Event()
-        result_container = []
-        available_banks = [bank for bank in remaining_banks if is_bank_available(bank.__class__.__name__)]
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        available_banks = [bank for bank in banks if is_bank_available(bank.__class__.__name__)]
         if len(available_banks) < 1:
             return APIResponse.json_format({'result': False, 'message': 'Not enough banks available'})
-
-        selected_banks = random.sample(available_banks, min(1, len(available_banks)))
-        await task_wrapper(selected_banks[0], account_number, bank_name, account_name)
+        selected_banks = random.sample(available_banks, min(1, len(available_banks))) 
+        remaining_banks = [bank for bank in banks if bank not in selected_banks]
+        # futures = await [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in selected_banks]
+        loop = asyncio.get_running_loop()
+        futures = [
+            executor.submit(run_async_task_in_executor, loop, task_wrapper, bank, account_number, bank_name, account_name)
+            for bank in selected_banks
+        ]
+        start_time = time.time()
         
         try:
             completion_event.wait(timeout=7)
@@ -202,11 +178,11 @@ async def check_bank_name(input: BankInfo):
                     for result, bank in result_container:
                         print(f'result_{bank.__class__.__name__}', result)
                         if result is True:
-                            return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
+                            return (APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__}))
                         elif isinstance(result, str):
                             return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': bank.__class__.__name__})
                         elif result == False or result is None:
-                            return APIResponse.json_format({'result': False, 'message': 'bank system error'})
+                            continue
             except Exception as e:
                 response = str(e)
                 print(traceback.format_exc())
@@ -214,8 +190,42 @@ async def check_bank_name(input: BankInfo):
                 return APIResponse.json_format(response)
         except TimeoutError:
             return APIResponse.json_format({'result': False, 'message': 'timeout'})
-    else:
-        return APIResponse.json_format({'result': False, 'message': 'error'})
+
+        all_false = all(result == False for result, bank in result_container)
+        if all_false:
+            print("Both tasks returned False, retrying...")
+            completion_event = threading.Event()
+            result_container = []
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                available_banks = [bank for bank in remaining_banks if is_bank_available(bank.__class__.__name__)]
+                if len(available_banks) < 1:
+                    return APIResponse.json_format({'result': False, 'message': 'Not enough banks available'})
+
+                selected_banks = random.sample(available_banks, min(1, len(available_banks)))
+                futures = [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in selected_banks]
+                start_time = time.time()
+                
+                try:
+                    completion_event.wait(timeout=7)
+                    try:
+                        if result_container:
+                            for result, bank in result_container:
+                                print(f'result_{bank.__class__.__name__}', result)
+                                if result is True:
+                                    return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
+                                elif isinstance(result, str):
+                                    return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': bank.__class__.__name__})
+                                elif result == False or result is None:
+                                    return APIResponse.json_format({'result': False, 'message': 'bank system error'})
+                    except Exception as e:
+                        response = str(e)
+                        print(traceback.format_exc())
+                        print(sys.exc_info()[2])
+                        return APIResponse.json_format(response)
+                except TimeoutError:
+                    return APIResponse.json_format({'result': False, 'message': 'timeout'})
+        else:
+            return APIResponse.json_format({'result': False, 'message': 'error'})
 
 if __name__ == "__main__":
     uvicorn.run(app, host='0.0.0.0', port=3000)
