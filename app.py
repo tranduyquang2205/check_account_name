@@ -134,8 +134,6 @@ async def check_bank_name(input: BankInfo):
     result_container = []
     # def task_wrapper(bank, account_number, bank_name, account_name):
     #     return asyncio.run(aync_task_wrapper(bank, account_number, bank_name, account_name))
-    def run_async_task_in_executor(loop, coro, *args):
-        return asyncio.run_coroutine_threadsafe(coro(*args), loop)
     async def task_wrapper(bank, account_number, bank_name, account_name):
         try:
             result = await check_bank(bank, account_number, bank_name, account_name)
