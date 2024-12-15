@@ -19,7 +19,7 @@ import gc
 
 import unidecode
 class BVBank:
-    def __init__(self,username, password, account_number,proxy_list=None):
+    async def __init__(self,username, password, account_number,proxy_list=None):
         print('BVBank _init')
         self.proxy_list = proxy_list
         self.proxy_cycle = cycle(self.proxy_list) if self.proxy_list else None
@@ -58,7 +58,7 @@ class BVBank:
             self.password = password
             self.account_number = account_number
             self.save_data()
-        self.login(relogin=True)
+        await self.login(relogin=True)
     def save_data(self):
         data = {
             'username': self.username,
