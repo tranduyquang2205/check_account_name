@@ -187,7 +187,7 @@ async def check_bank_name(input: BankInfo):
         print("Both tasks returned False, retrying...")
         completion_event = threading.Event()
         result_container = []
-        available_banks = [bank for bank in remaining_banks if is_bank_available(bank.__class__.__name__)]
+        available_banks = [bank for bank in remaining_banks if is_bank_available(bank)]
         if len(available_banks) < 1:
             return APIResponse.json_format({'result': False, 'message': 'Not enough banks available'})
 
