@@ -58,6 +58,7 @@ class BVBank:
             self.password = password
             self.account_number = account_number
             self.save_data()
+        self.login(relogin=True)
     def save_data(self):
         data = {
             'username': self.username,
