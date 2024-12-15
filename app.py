@@ -80,6 +80,9 @@ bank_access_limits = {
 bank_access_log = defaultdict(list)
 
 def is_bank_available(bank_name):
+    if 'bank_name' == 'BVBank' and BVBank.is_login == False:
+        print(f"{bank_name} is in Relogin.")
+        return False
     current_time = datetime.now()
     access_logs = bank_access_log[bank_name]
     access_logs = [log for log in access_logs if log > current_time - bank_access_limits[bank_name]['interval']]

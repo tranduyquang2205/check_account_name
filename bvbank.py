@@ -20,7 +20,7 @@ import gc
 import unidecode
 class BVBank:
     def __init__(self,username, password, account_number,proxy_list=None):
-        print('BVBank _init')
+        self.availability = False
         self.proxy_list = proxy_list
         self.proxy_cycle = cycle(self.proxy_list) if self.proxy_list else None
         if self.proxy_list:
@@ -141,7 +141,7 @@ class BVBank:
                 await page.authenticate({'username': proxy_username, 'password': proxy_password})
 
             await page.goto('https://digibank.bvbank.net.vn/login')
-            await page.waitForSelector('body > div > main > div > section > div.content-wrap.sme-register-form > div > div > div:nth-child(1) > h2')
+            await page.waitForSelector('body > div > main > div > section > div.content-wrap.sme-register-form > div > div > div:nth-child(1) > h2',timeout=60000)
 
             # Extract and save cookies
             cookies = await page.cookies()
@@ -262,7 +262,9 @@ class BVBank:
                 return balance_response
             
         self.session = requests.Session()
+        self.available = False
         await self.get_cookies()
+        
         url = "https://digibank.bvbank.net.vn/login"
         
         response = self.base_request_get(url)
@@ -310,6 +312,7 @@ class BVBank:
         #     file.write(response.text)
         if 'https://digibank.bvbank.net.vn/home' in response.url:
             self.save_cookies(self.session.cookies)
+            self.available = True
             self.is_login = True
             self.time_login = time.time()
             self.save_data()
