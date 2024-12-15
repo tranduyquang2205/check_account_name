@@ -79,8 +79,9 @@ bank_access_limits = {
 }
 bank_access_log = defaultdict(list)
 
-def is_bank_available(bank_name):
-    if 'bank_name' == 'BVBank' and BVBank.is_login == False:
+def is_bank_available(bank):
+    bank_name = bank.__class__.__name__
+    if bank_name == 'BVBank' and bank.is_login == False:
         print(f"{bank_name} is in Relogin.")
         return False
     current_time = datetime.now()
@@ -153,7 +154,7 @@ async def check_bank_name(input: BankInfo):
         except Exception as e:
             print(f"Error processing bank {bank}: {e}")
 
-    available_banks = [bank for bank in banks if is_bank_available(bank.__class__.__name__)]
+    available_banks = [bank for bank in banks if is_bank_available(bank)]
     if len(available_banks) < 1:
         return APIResponse.json_format({'result': False, 'message': 'Not enough banks available'})
     selected_banks = random.sample(available_banks, min(1, len(available_banks))) 
