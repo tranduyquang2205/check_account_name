@@ -81,7 +81,7 @@ bank_access_log = defaultdict(list)
 
 def is_bank_available(bank):
     bank_name = bank.__class__.__name__
-    if bank_name == 'BVBank' and bank.is_login == False:
+    if bank_name == 'BVBank' and bank.availability == False:
         print(f"{bank_name} is in Relogin.")
         return False
     current_time = datetime.now()
