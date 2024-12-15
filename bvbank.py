@@ -414,11 +414,16 @@ class BVBank:
             login = await self.login(relogin=True)
             print(login)
         response = self.base_request_get(f'https://digibank.bvbank.net.vn/setting/find-info-beneficiary/get-recipient-name/{account_number}')
+        print(response.text)
         if response:
             return {
                 'customerName': response
             }
         else:
+            self.is_login = False
+            self.save_data()
+            if not retry:
+                return await self.check_bank_name_in(account_number,retry=True)
             return None
     async def check_bank_name_out(self,new_bank_code,new_bank_name,account_number,retry=False):
         if not self.is_login or time.time() - self.time_login > 9000:
@@ -481,7 +486,7 @@ class BVBank:
         return None
                     
     async def get_bank_name(self, ben_account_number, bank_name):
-        if bank_name == 'VCCB':
+        if bank_name == 'VietCapitalBank':
             result =  await self.check_bank_name_in(ben_account_number)
         else:
             new_bank_code,new_bank_name = self.mapping_bank_code(bank_name)
@@ -493,7 +498,7 @@ class BVBank:
         #     login = self.do_login()
         #     if not login['success']:
         #         return login
-        # if bank_name == 'VCCB':
+        # if bank_name == 'VietCapitalBank':
         #     result =  self.check_bank_name_in(ben_account_number)
         # else:
         #     new_bank_code,new_bank_name = self.mapping_bank_code(bank_name)
