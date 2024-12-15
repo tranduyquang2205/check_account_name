@@ -110,12 +110,10 @@ for section in config.sections():
 # print(banks)
 async def check_bank(bank, account_number, bank_name, account_name):
     try:
-        print(bank.__class__.__name__)
         if bank.__class__.__name__ == 'BVBank':
             return await bank.check_bank_name(account_number, bank_name, account_name)
         return bank.check_bank_name(account_number, bank_name, account_name)
     except CancelledError:
-        print(1111)
         return False
 
 app = FastAPI()
@@ -158,7 +156,6 @@ async def check_bank_name(input: BankInfo):
     if len(available_banks) < 1:
         return APIResponse.json_format({'result': False, 'message': 'Not enough banks available'})
     selected_banks = random.sample(available_banks, min(1, len(available_banks))) 
-    print(selected_banks)
     remaining_banks = [bank for bank in banks if bank not in selected_banks]
     
     await task_wrapper(selected_banks[0], account_number, bank_name, account_name)
