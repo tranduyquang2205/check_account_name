@@ -485,7 +485,10 @@ class BVBank:
             result =  await self.check_bank_name_in(ben_account_number)
         else:
             new_bank_code,new_bank_name = self.mapping_bank_code(bank_name)
-            result =  await self.check_bank_name_out(new_bank_code,new_bank_name,ben_account_number)
+            if new_bank_code and new_bank_name:
+                result =  await self.check_bank_name_out(new_bank_code,new_bank_name,ben_account_number)
+            else:
+                result = None
         # if 'ERR_DESC' in result and result['ERR_DESC'] == 'TOKEN INVALID':
         #     login = self.do_login()
         #     if not login['success']:
