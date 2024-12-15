@@ -20,6 +20,7 @@ import gc
 import unidecode
 class BVBank:
     def __init__(self,username, password, account_number,proxy_list=None):
+        print('BVBank _init')
         self.proxy_list = proxy_list
         self.proxy_cycle = cycle(self.proxy_list) if self.proxy_list else None
         if self.proxy_list:
