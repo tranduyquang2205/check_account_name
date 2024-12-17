@@ -498,8 +498,15 @@ class OCB:
         self.load_cookies()
         response = self.curl_post('https://identity-omni.ocb.com.vn/auth/realms/backbase/protocol/openid-connect/token', data=data, headers=headers,proxies=self.proxies)
         self.save_cookies(self.session.cookies)
-        result = response.json()
-        if 'access_token' in result:
+        if response:
+            try:
+                result = response.json()
+            except Exception as e:
+                result = response.text
+        else:
+            result = None
+            
+        if result and 'access_token' in result:
             self.set_token(result)
             self.save_data()
         # else:
@@ -927,7 +934,7 @@ class OCB:
 def loginOCB(user):
     session_state,code = None,None
     refresh_token = user.do_refresh_token()
-    if 'access_token' not in refresh_token:
+    if not refresh_token or 'access_token' not in refresh_token:
         login = user.do_login()
         print(login)
         if login and 'success' in login and login['success']:

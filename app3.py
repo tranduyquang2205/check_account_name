@@ -164,11 +164,7 @@ async def check_bank_name(input: BankInfo):
         selected_banks = random.sample(available_banks, min(1, len(available_banks))) 
         remaining_banks = [bank for bank in banks if bank not in selected_banks]
         # futures = await [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in selected_banks]
-        loop = asyncio.get_running_loop()
-        futures = [
-            executor.submit(run_async_task_in_executor, loop, task_wrapper, bank, account_number, bank_name, account_name)
-            for bank in selected_banks
-        ]
+        futures = [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in selected_banks]
         start_time = time.time()
         
         try:
