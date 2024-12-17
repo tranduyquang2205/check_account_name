@@ -108,11 +108,11 @@ for section in config.sections():
             bank_instance = bank_class(**params)
             banks.append(bank_instance)
 # print(banks)
-async def check_bank(bank, account_number, bank_name, account_name):
+def check_bank(bank, account_number, bank_name, account_name):
     try:
         print(bank.__class__.__name__)
         if bank.__class__.__name__ == 'BVBank':
-            return await bank.check_bank_name(account_number, bank_name, account_name)
+            return bank.check_bank_name(account_number, bank_name, account_name)
         return bank.check_bank_name(account_number, bank_name, account_name)
     except CancelledError:
         print(1111)
@@ -127,7 +127,7 @@ class BankInfo(BaseModel):
     account_name: str
 
 @app.post('/check_bank_name', tags=["check_bank_name"])
-async def check_bank_name(input: BankInfo):
+def check_bank_name(input: BankInfo):
     account_number = input.account_number
     bank_name = input.bank_name
     account_name = input.account_name
@@ -138,9 +138,9 @@ async def check_bank_name(input: BankInfo):
     #     return asyncio.run(aync_task_wrapper(bank, account_number, bank_name, account_name))
     def run_async_task_in_executor(loop, coro, *args):
         return asyncio.run_coroutine_threadsafe(coro(*args), loop)
-    async def task_wrapper(bank, account_number, bank_name, account_name):
+    def task_wrapper(bank, account_number, bank_name, account_name):
         try:
-            result = await check_bank(bank, account_number, bank_name, account_name)
+            result = check_bank(bank, account_number, bank_name, account_name)
             if not completion_event.is_set() and (result is True or isinstance(result, str)):
                 result_container.append((result, bank))
                 completion_event.set()
