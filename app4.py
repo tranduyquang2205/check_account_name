@@ -14,6 +14,7 @@ from typing import List
 from acb import ACB
 # from mbbank_biz import MBBANK
 from mbbank import MBBANK
+from bvbank import BVBank
 from seabank import SeaBank
 from techcombank_biz import Techcombank
 from vietabank import VietaBank
@@ -24,6 +25,8 @@ from shb import SHB
 from api_response import APIResponse
 from datetime import datetime, timedelta
 from collections import defaultdict
+import asyncio
+
 WHITELISTED_IPS = [
     '103.57.223.111',
     '103.56.163.65',
@@ -61,17 +64,19 @@ BANK_CLASSES = {
     'Zalopay': Zalopay,
     'SHB': SHB,
     'OCB': OCB,
+    'BVBank': BVBank
 }
 bank_access_limits = {
     'ACB': {'limit': 20, 'interval': timedelta(minutes=1)},
     'MBBANK': {'limit': 1, 'interval': timedelta(seconds=10)},
+    'BVBank': {'limit': 100000, 'interval': timedelta(seconds=10)},
     'Techcombank': {'limit': 1000000, 'interval': timedelta(minutes=1)},
     'VTB': {'limit': 1, 'interval': timedelta(minutes=1)},
     'SeaBank': {'limit': 30, 'interval': timedelta(minutes=1)},
     'VietaBank': {'limit': 1000000, 'interval': timedelta(minutes=1)},
     'SHB': {'limit': 1000000, 'interval': timedelta(minutes=1)},
     'Zalopay': {'limit': 10, 'interval': timedelta(hours=1)},
-    'OCB': {'limit': 100, 'interval': timedelta(minutes=1)}
+    'OCB': {'limit': 10000, 'interval': timedelta(minutes=1)}
 }
 bank_access_log = defaultdict(list)
 
@@ -107,6 +112,8 @@ for section in config.sections():
 def check_bank(bank, account_number, bank_name, account_name):
     try:
         print(bank.__class__.__name__)
+        if bank.__class__.__name__ == 'BVBank':
+            return bank.check_bank_name(account_number, bank_name, account_name)
         return bank.check_bank_name(account_number, bank_name, account_name)
     except CancelledError:
         print(1111)
@@ -128,7 +135,10 @@ def check_bank_name(input: BankInfo):
     # print(account_number, bank_name, account_name)
     completion_event = threading.Event()
     result_container = []
-    
+    # def task_wrapper(bank, account_number, bank_name, account_name):
+    #     return asyncio.run(aync_task_wrapper(bank, account_number, bank_name, account_name))
+    # def run_async_task_in_executor(loop, coro, *args):
+    #     return asyncio.run_coroutine_threadsafe(coro(*args), loop)
     def task_wrapper(bank, account_number, bank_name, account_name):
         try:
             result = check_bank(bank, account_number, bank_name, account_name)
@@ -143,7 +153,6 @@ def check_bank_name(input: BankInfo):
                 completion_event.set()
                 result_container.append((result, bank))
         except CancelledError:
-            print(11111)
             pass
         except Exception as e:
             print(f"Error processing bank {bank}: {e}")
@@ -154,6 +163,7 @@ def check_bank_name(input: BankInfo):
             return APIResponse.json_format({'result': False, 'message': 'Not enough banks available'})
         selected_banks = random.sample(available_banks, min(1, len(available_banks))) 
         remaining_banks = [bank for bank in banks if bank not in selected_banks]
+        # futures = await [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in selected_banks]
         futures = [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in selected_banks]
         start_time = time.time()
         
@@ -214,4 +224,5 @@ def check_bank_name(input: BankInfo):
             return APIResponse.json_format({'result': False, 'message': 'error'})
 
 if __name__ == "__main__":
+    
     uvicorn.run(app, host='0.0.0.0', port=3000)
