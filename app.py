@@ -68,7 +68,7 @@ BANK_CLASSES = {
     'BVBank': BVBank
 }
 bank_access_limits = {
-    'ACB': {'limit': 25, 'interval': timedelta(minutes=1)},
+    'ACB': {'limit': 20, 'interval': timedelta(minutes=1)},
     'MBBANK': {'limit': 1, 'interval': timedelta(seconds=10)},
     'BVBank': {'limit': 100000, 'interval': timedelta(seconds=10)},
     'Techcombank': {'limit': 1000000, 'interval': timedelta(minutes=1)},
