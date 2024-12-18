@@ -845,10 +845,8 @@ class OCB:
             'coreBankId':coreBankId,
             'transferType':'NAPAS_ACCOUNT_NUMBER'
         })
+        self.change_proxy()
         response = requests.post(url,headers=headers, data=data,proxies=self.proxies)
-        # self.save_cookies(self.session.cookies)
-        # with open("transaction"+str(page)+".html", "w", encoding="utf-8") as file:
-        #     file.write(response.text)
         if response.status_code == 200:
             result = response.json()
             return result
