@@ -66,7 +66,7 @@ BANK_CLASSES = {
     'BVBank': BVBank
 }
 bank_access_limits = {
-    'ACB': {'limit': 20, 'interval': timedelta(minutes=1)},
+    'ACB': {'limit': 25, 'interval': timedelta(minutes=1)},
     'MBBANK': {'limit': 1, 'interval': timedelta(seconds=10)},
     'BVBank': {'limit': 100000, 'interval': timedelta(seconds=10)},
     'Techcombank': {'limit': 1000000, 'interval': timedelta(minutes=1)},
@@ -136,8 +136,8 @@ def check_bank_name(input: BankInfo):
     result_container = []
     # def task_wrapper(bank, account_number, bank_name, account_name):
     #     return asyncio.run(aync_task_wrapper(bank, account_number, bank_name, account_name))
-    def run_async_task_in_executor(loop, coro, *args):
-        return asyncio.run_coroutine_threadsafe(coro(*args), loop)
+    # def run_async_task_in_executor(loop, coro, *args):
+    #     return asyncio.run_coroutine_threadsafe(coro(*args), loop)
     def task_wrapper(bank, account_number, bank_name, account_name):
         try:
             result = check_bank(bank, account_number, bank_name, account_name)
@@ -152,7 +152,6 @@ def check_bank_name(input: BankInfo):
                 completion_event.set()
                 result_container.append((result, bank))
         except CancelledError:
-            print(11111)
             pass
         except Exception as e:
             print(f"Error processing bank {bank}: {e}")
