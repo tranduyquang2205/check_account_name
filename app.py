@@ -9,7 +9,7 @@ import sys
 import traceback
 import threading
 from typing import List
-
+import gc
 # Import your bank classes
 from acb import ACB
 # from mbbank_biz import MBBANK
@@ -24,6 +24,8 @@ from shb import SHB
 from api_response import APIResponse
 from datetime import datetime, timedelta
 from collections import defaultdict
+from collections import defaultdict, deque
+MAX_LOG_SIZE = 200
 WHITELISTED_IPS = [
     '103.57.223.111',
     '103.56.163.65',
@@ -73,16 +75,20 @@ bank_access_limits = {
     'Zalopay': {'limit': 10, 'interval': timedelta(hours=1)},
     'OCB': {'limit': 10000, 'interval': timedelta(minutes=1)}
 }
-bank_access_log = defaultdict(list)
+bank_access_log = defaultdict(lambda: deque(maxlen=MAX_LOG_SIZE))
 
+def log_bank_access(bank_name):
+    # Add the current timestamp to the log for the bank; oldest entries are automatically removed if max size is exceeded
+    bank_access_log[bank_name].append(datetime.now())
+
+# Function to check if the bank is available based on the access limit
 def is_bank_available(bank_name):
     current_time = datetime.now()
     access_logs = bank_access_log[bank_name]
+    # Filter out the logs that are outside the allowed time window
     access_logs = [log for log in access_logs if log > current_time - bank_access_limits[bank_name]['interval']]
-    bank_access_log[bank_name] = access_logs
+    bank_access_log[bank_name] = deque(access_logs, maxlen=MAX_LOG_SIZE)  # Reassign to maintain the max length
     return len(access_logs) < bank_access_limits[bank_name]['limit']
-def log_bank_access(bank_name):
-    bank_access_log[bank_name].append(datetime.now())
 # Read configuration from config file
 config = configparser.ConfigParser()
 config.read('config.ini')
