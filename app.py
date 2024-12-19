@@ -113,13 +113,15 @@ def check_bank(bank, account_number, bank_name, account_name):
         return False
 
 app = FastAPI()
-app.middleware("http")(IPWhitelistMiddleware(app, WHITELISTED_IPS))
+# app.middleware("http")(IPWhitelistMiddleware(app, WHITELISTED_IPS))
 
 class BankInfo(BaseModel):
     account_number: str
     bank_name: str
     account_name: str
-
+@app.get("/")
+def read_root():
+    return APIResponse.json_format({'code':200,"Hello": "World"})
 @app.post('/check_bank_name', tags=["check_bank_name"])
 def check_bank_name(input: BankInfo):
     account_number = input.account_number
