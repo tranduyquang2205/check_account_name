@@ -272,7 +272,8 @@ class OCB:
         error_message = self.extract_error_message(result)
         pattern = r'action="(.*)"'
         matches = re.search(pattern, res.text)
-        url = matches.group(1).replace("amp;", "&").replace("&&", "&")
+        if matches:
+            url = matches.group(1).replace("amp;", "&").replace("&&", "&")
         
         if error_message == 'OMNI_03_MS01':
             error_code = 444
@@ -851,6 +852,7 @@ class OCB:
             result = response.json()
             return result
         else:
+            self.login_ocb(ben_account_number, bank_name)
             return {
             'success': False,
             'message': 'Please relogin!',
