@@ -796,7 +796,7 @@ class OCB:
             result = response.json()
             return result
         else:
-            self.login_ocb(ben_account_number, bank_name)
+            self.login_ocb(ben_account_number, 'OCB')
             return {
             'success': False,
             'message': 'Please relogin!',
