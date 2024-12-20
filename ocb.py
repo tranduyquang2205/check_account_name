@@ -191,7 +191,11 @@ class OCB:
         res = self.curl_get(url, headers=headers,proxies=self.proxies)
         # print(url,res)
         # print(res.url)
-        session_state,code = self.get_session_and_code(res.url)
+        if res:
+            session_state,code = self.get_session_and_code(res.url)
+        else:
+            self.change_proxy()
+            return self.get_login_url()
         if session_state and code:
             return self.get_login_url()
         # with open("login_url.html", "w", encoding="utf-8") as file:
