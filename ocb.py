@@ -900,8 +900,9 @@ class OCB:
     def login_ocb(self,ben_account_number=None, bank_name=None):
         login = self.do_login()
         if login and 'success' in login and login['success']:
-            print('waiting')
+            
             if login and  'waiting' in login and login['waiting']:
+                print('waiting')
                 url = login['url']
                 i = 1
                 status = "PENDING"
