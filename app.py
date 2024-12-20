@@ -85,7 +85,7 @@ def log_bank_access(bank_name):
 def is_bank_available(bank):
     bank_name = bank.__class__.__name__
     if bank_name == 'OCB':
-        if not bank.is_login:
+        if bank.waiting:
             return False
     current_time = datetime.now()
     access_logs = bank_access_log[bank_name]

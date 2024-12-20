@@ -41,11 +41,12 @@ class OCB:
         self.refresh_token = None
         self.identification_id = None
         self.name_account = None
-        self.is_login = False
+        
         self.balance = None
         self.id = None
         self.fullname = None
         self.pending_transfer = []
+        self.waiting = False
         with open('ocb.json','r', encoding='utf-8') as f:
             self.data_bank2 = json.load(f)
         with open('banks.json','r', encoding='utf-8') as f:
@@ -57,7 +58,7 @@ class OCB:
             self.fullname = None
             self.auth_token = None
             self.refresh_token = None
-            self.is_login = False
+            
             self.pending_transfer = []
             self.user_agent = self.get_user_agent()
             self.save_data()
@@ -274,7 +275,7 @@ class OCB:
             # print('url_after_login',res.url)
             session_state,code = self.get_session_and_code(res.url)
         if session_state and code:
-            self.is_login = True
+            
             return {
                         'success': True,
                         'code': 200,
@@ -808,7 +809,7 @@ class OCB:
             result = response.json()
             return result
         else:
-            self.is_login = False
+            
             self.login_ocb(ben_account_number, 'OCB')
             return {
             'success': False,
@@ -864,7 +865,7 @@ class OCB:
             result = response.json()
             return result
         else:
-            self.is_login = False
+            
             self.login_ocb(ben_account_number, bank_name)
             return {
             'success': False,
@@ -879,7 +880,7 @@ class OCB:
     def get_bank_name(self, ben_account_number, bank_name):
         refresh_token = self.do_refresh_token()
         if not refresh_token or  'access_token' not in refresh_token:
-            self.is_login = False
+            
             self.login_ocb(ben_account_number, bank_name)
         
         if bank_name == 'OCB':
@@ -887,7 +888,8 @@ class OCB:
         else:
             result =  self.check_bank_name_out(ben_account_number,bank_name)
         if not result or 'accountHolderName' not in result:
-            print(result)
+            
+            self.login_ocb(ben_account_number, bank_name)
             return None
         return result
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
@@ -907,6 +909,7 @@ class OCB:
             
             if login and  'waiting' in login and login['waiting']:
                 print('waiting')
+                self.waiting = True
                 url = login['url']
                 i = 1
                 status = "PENDING"
@@ -924,21 +927,23 @@ class OCB:
                         if status == "PENDING":
                             time.sleep(2)
                         else:
-                            self.is_login = True
+                            
                             print('login success')
                             break
                     i += 1
             elif 'session_state' in login:
-                self.is_login = True
+                
                 print('login success')
                 session_state = login['session_state']
                 code = login['code']
             else:
-                self.is_login = True
+                
                 print('login success')
+            
         else:
-            self.is_login = False
+            
             return login
+        self.waiting = False
         if not code:
             continue_check = self.continue_check_session(url)
                 # Extract the code from the URL
@@ -948,7 +953,7 @@ class OCB:
             if token:
                 return self.get_bank_name(ben_account_number, bank_name)
             else:
-                self.is_login = False
+                
                 return None
         except Exception as e:
             return None
@@ -958,7 +963,7 @@ def loginOCB(user):
     refresh_token = user.do_refresh_token()
     print('refresh_token',refresh_token)
     if not refresh_token or 'access_token' not in refresh_token:
-        user.is_login = False
+        
         login = user.do_login()
         print('login_ocb',login)
         if login and 'success' in login and login['success']:
@@ -980,17 +985,17 @@ def loginOCB(user):
                         if status == "PENDING":
                             time.sleep(2)
                         else:
-                            user.is_login = True
+                            
                             print('login success')
                             break
                     i += 1
             elif 'session_state' in login:
-                user.is_login = True
+                
                 print('login success')
                 session_state = login['session_state']
                 code = login['code']
             else:
-                user.is_login = True
+                
                 print('login success')
         else:
             return login
