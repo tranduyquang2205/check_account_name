@@ -875,7 +875,7 @@ class OCB:
         return no_accents.upper()
     def get_bank_name(self, ben_account_number, bank_name):
         refresh_token = self.do_refresh_token()
-        if not result or  'access_token' not in result:
+        if not refresh_token or  'access_token' not in refresh_token:
             self.login_ocb(ben_account_number, bank_name)
         
         if bank_name == 'OCB':
@@ -883,6 +883,7 @@ class OCB:
         else:
             result =  self.check_bank_name_out(ben_account_number,bank_name)
         if not result or 'accountHolderName' not in result:
+            print(result)
             return None
         return result
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
