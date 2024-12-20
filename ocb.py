@@ -41,7 +41,7 @@ class OCB:
         self.refresh_token = None
         self.identification_id = None
         self.name_account = None
-        
+        self.is_login = False
         self.balance = None
         self.id = None
         self.fullname = None
