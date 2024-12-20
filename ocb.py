@@ -872,14 +872,14 @@ class OCB:
             result =  self.check_bank_name_in(ben_account_number)
         else:
             result =  self.check_bank_name_out(ben_account_number,bank_name)
-        if 'accountHolderName' not in result:
+        if not result or 'accountHolderName' not in result:
             print(result)
             return self.login_ocb(ben_account_number, bank_name)
         return result
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
         get_name_from_account = self.get_bank_name(ben_account_number, bank_name)
         print('get_name_from_account_ocb',get_name_from_account)
-        if 'accountHolderName' in get_name_from_account:
+        if get_name_from_account and  'accountHolderName' in get_name_from_account:
             input_name = self.convert_to_uppercase_no_accents(ben_account_name).lower().strip()
             output_name = get_name_from_account['accountHolderName'].lower().strip()
             if output_name == input_name or output_name.strip().replace(' ','') == input_name.strip().replace(' ',''):
