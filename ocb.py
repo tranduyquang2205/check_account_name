@@ -187,7 +187,7 @@ class OCB:
         query_string = "&".join([f"{key}={value}" for key, value in params.items()])
         url = f"{base_url}?{query_string}"
 
-        self.load_cookies()
+        # ### self.load_cookies()
         res = self.curl_get(url, headers=headers,proxies=self.proxies)
         # print(url,res)
         # print(res.url)
@@ -200,7 +200,7 @@ class OCB:
             return self.get_login_url()
         # with open("login_url.html", "w", encoding="utf-8") as file:
         #     file.write(res.text)
-        self.save_cookies(self.session.cookies)
+        ### self.save_cookies(self.session.cookies)
         pattern = r'action="(.*)" method'
         matches = re.search(pattern, res.text)
         url = matches.group(1).replace("amp;", "&").replace("&&", "&")
@@ -224,11 +224,11 @@ class OCB:
         data = {
             'otpChoice': 'PUSH_DEVICE',
         }
-        self.load_cookies()
+        ### self.load_cookies()
         res = self.curl_post(request_url,headers=headers, data=data,proxies=self.proxies)
         # with open("request_login.html", "w", encoding="utf-8") as file:
         #     file.write(res.text)
-        self.save_cookies(self.session.cookies)
+        ### self.save_cookies(self.session.cookies)
         result = res.text
         pattern = r'action="(.*)" method'
         matches = re.search(pattern, res.text)
@@ -237,7 +237,6 @@ class OCB:
         
     def do_login(self):
         login_url = self.get_login_url()
-        print('login_url',login_url)
         headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
             'Accept-Language': 'en-US,en;q=0.9',
@@ -259,11 +258,11 @@ class OCB:
             'locale': 'vi',
             'rememberMe': 'on'
         }
-        self.load_cookies()
+        # ### self.load_cookies()
         res = self.curl_post(login_url,headers=headers, data=data,proxies=self.proxies)
         # with open("login_request.html", "w", encoding="utf-8") as file:
         #     file.write(res.text)
-        self.save_cookies(self.session.cookies)
+        ### self.save_cookies(self.session.cookies)
         result = res.text
         # print('url_after_login',res.url)
         session_state,code = self.get_session_and_code(res.url)
@@ -374,9 +373,9 @@ class OCB:
         data = {
             'oob-authn-action': 'confirmation-poll'
         }
-        self.load_cookies()
+        ### self.load_cookies()
         res = self.curl_post(url, headers=headers,data=data,proxies=self.proxies)
-        self.save_cookies(self.session.cookies)
+        ### self.save_cookies(self.session.cookies)
         result = res.text
 
         return result
@@ -399,9 +398,9 @@ class OCB:
         data = {
             'oob-authn-action': 'confirmation-continue'
         }
-        self.load_cookies()
+        ### self.load_cookies()
         response = self.curl_post(url, headers=headers,data=data,allow_redirects=False,proxies=self.proxies)
-        self.save_cookies(self.session.cookies)
+        ### self.save_cookies(self.session.cookies)
         if response.status_code == 302:
             new_url = response.headers.get('Location')
             return new_url
@@ -434,9 +433,9 @@ class OCB:
         }
 
         url = 'https://identity-omni.ocb.com.vn/auth/realms/backbase/protocol/openid-connect/token'
-        self.load_cookies()
+        ### self.load_cookies()
         response = self.curl_post(url, headers=headers, data=data,proxies=self.proxies)
-        self.save_cookies(self.session.cookies)
+        ### self.save_cookies(self.session.cookies)
         result = response.json()
 
         if 'access_token' in result:
@@ -468,10 +467,10 @@ class OCB:
         query_string = "&".join([f"{key}={value}" for key, value in params.items()])
         url = f"{base_url}?{query_string}"
         
-        self.load_cookies()
+        ### self.load_cookies()
         # print(url)
         res = self.curl_get(url, headers=headers,proxies=self.proxies)
-        self.save_cookies(self.session.cookies)
+        ### self.save_cookies(self.session.cookies)
         # print(res.url)
         # with open("logout.html", "w", encoding="utf-8") as file:
         #     file.write(res.text)
@@ -503,9 +502,9 @@ class OCB:
             'scope': 'openid',
             'ui_locales': 'vi'
         }
-        self.load_cookies()
+        ### self.load_cookies()
         response = self.curl_post('https://identity-omni.ocb.com.vn/auth/realms/backbase/protocol/openid-connect/token', data=data, headers=headers,proxies=self.proxies)
-        self.save_cookies(self.session.cookies)
+        ### self.save_cookies(self.session.cookies)
         if response:
             try:
                 result = response.json()
@@ -538,10 +537,10 @@ class OCB:
         'sec-ch-ua-platform': '"Windows"'
         }
 
-        self.load_cookies()
+        ### self.load_cookies()
         url = 'https://ocbomni.ocb.com.vn/api/arrangement-manager/client-api/v2/arrangement-views/account-overview/groups/current-account-vnd?_limit=100'
         response = self.curl_get(url, headers=headers,proxies=self.proxies)
-        self.save_cookies(self.session.cookies)
+        ### self.save_cookies(self.session.cookies)
         if response.status_code == 200:
             result = response.json()
             return result
@@ -573,9 +572,9 @@ class OCB:
 
 
         url = f'https://ocbomni.ocb.com.vn/api/sync-dis/client-api/v1/transactions/refresh/arrangements'
-        self.load_cookies()
+        ### self.load_cookies()
         response = self.curl_post(url, headers=headers, data=payload,proxies=self.proxies)
-        self.save_cookies(self.session.cookies)
+        ### self.save_cookies(self.session.cookies)
         return response
     def sync(self):
         payload = json.dumps({
@@ -604,9 +603,9 @@ class OCB:
 
 
         url = f'https://ocbomni.ocb.com.vn/api/bb-ingestion-service/client-api/v2/accounts/sync'
-        self.load_cookies()
+        ### self.load_cookies()
         response = self.curl_post(url, headers=headers, data=payload,proxies=self.proxies)
-        self.save_cookies(self.session.cookies)
+        ### self.save_cookies(self.session.cookies)
         return response
     def get_transactions(self, from_date="2022-11-15", to_date="2022-12-03",limit=100):
         list_transactions = []
@@ -656,9 +655,9 @@ class OCB:
 
 
         url = f'https://ocbomni.ocb.com.vn/api/transaction-manager/client-api/v2/transactions?bookingDateGreaterThan={from_date}&bookingDateLessThan={to_date}&arrangementId={self.id}&from={page}&size={limit}&orderBy=bookingDate&direction=DESC'
-        self.load_cookies()
+        ### self.load_cookies()
         response = self.curl_get(url, headers=headers,proxies=self.proxies)
-        self.save_cookies(self.session.cookies)
+        ### self.save_cookies(self.session.cookies)
         # with open("transaction"+str(page)+".html", "w", encoding="utf-8") as file:
         #     file.write(response.text)
         if response.status_code == 200:
