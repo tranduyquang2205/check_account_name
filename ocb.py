@@ -874,15 +874,16 @@ class OCB:
         # Convert to uppercase
         return no_accents.upper()
     def get_bank_name(self, ben_account_number, bank_name):
-        self.do_refresh_token()
+        refresh_token = self.do_refresh_token()
+        if not result or  'access_token' not in result:
+            self.login_ocb(ben_account_number, bank_name)
         
         if bank_name == 'OCB':
             result =  self.check_bank_name_in(ben_account_number)
         else:
             result =  self.check_bank_name_out(ben_account_number,bank_name)
         if not result or 'accountHolderName' not in result:
-            print(result)
-            return self.login_ocb(ben_account_number, bank_name)
+            return None
         return result
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
         get_name_from_account = self.get_bank_name(ben_account_number, bank_name)
