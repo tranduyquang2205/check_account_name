@@ -119,6 +119,7 @@ class OCB:
         try:
             with open(self.cookies_file, 'r') as f:
                 cookies = json.load(f)
+                self.session.cookies.clear()
                 self.session.cookies.update(cookies)
                 return
         except (FileNotFoundError, json.decoder.JSONDecodeError):
@@ -232,6 +233,7 @@ class OCB:
         
     def do_login(self):
         login_url = self.get_login_url()
+        print('login_url',login_url)
         headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
             'Accept-Language': 'en-US,en;q=0.9',
@@ -770,7 +772,6 @@ class OCB:
         'Accept-Language': 'vi',
         'Authorization': f'Bearer {self.auth_token}',
         'Connection': 'keep-alive',
-        'Cookie': 'BIGipServer~Omni_4.0~Omni_4.0_Pool=175270410.20480.0000; _ga=GA1.1.569260134.1730308709; TS01f4a2ea=014bffbef0e3341402ddc29a65cf0264ff88421e42d8e0c2dbb79e9e247ca0b023dfe2585d140b5388c4a0309e464914e8d5c78730d37b2b1cbc7beeb5725b3d37be973167; TS01e1866a=014bffbef0ac0ab2c3626e75f199d10c105e034aa8ae77ddcd182d8f79a80268755ab4f90cccb8bb1c97e78cbd54692d47a3078576; USER_CONTEXT=eyJraWQiOiJaNXB5dkxcL3FMYUFyR3ZiTkY3Qm11UGVQU1Q4R0I5UHBPR0RvRnBlbmIxOD0iLCJjdHkiOiJKV1QiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..OTOdmkQAnoaPm5MsE1kDEw.gUS55wP5peyVWi9xIz2O49dO11Fi7XAo21E7z-iV8nJ12XOuT0Hn-kL7HK-XDfSAVmoZR-UiK76cGuH51kJu9bVbW0N3pJ1KQfxb8yuHwjXrqXzYswK0CmM_8WWq_tCqeVyKQKH1gvCbI9Hv8fzeOb2c21PnUUea-Y7GoR3cN_e5IPHOro3WGp6-N9D_4dby9hgxB_60fzZ1W2m4nL2qpMPuo0N3ISPvB87gTldQ-yVDZ472IriqcXtNoXTTIC4TsyaxD4dzCepEZ0mPcPCcTIBaS0_8_BZ1WD7Ia64Q4a_X6JpGfwg1Vj-s7CTZvM9d.EvUojthAum-N7i9faP-_tg; _ga_NJJ7PHJKV8=GS1.1.1730317030.3.1.1730317031.59.0.0; XSRF-TOKEN=9d57d065-5803-4d5e-a280-ef4f9f3e2404; TS01e1866a=014bffbef031e20e9fc98d327cfb58aef1091147abcd2693a28e811b6e902ebd34c56b1224a5e326e8c9fd2eebc07f1c91af336515',
         'Lang': 'vi',
         'Sec-Fetch-Dest': 'empty',
         'Sec-Fetch-Mode': 'cors',
@@ -787,9 +788,8 @@ class OCB:
             'accountOrPhone': ben_account_number,
             'transferType':'INTERNAL_TRANSFER'
         }
-        self.load_cookies()
-        response = self.curl_post(url,headers=headers, data=data,proxies=self.proxies)
-        self.save_cookies(self.session.cookies)
+        self.change_proxy()
+        response = requests.post(url,headers=headers, data=data,proxies=self.proxies)
         # with open("transaction"+str(page)+".html", "w", encoding="utf-8") as file:
         #     file.write(response.text)
         if response.status_code == 200:
@@ -936,6 +936,7 @@ class OCB:
 def loginOCB(user):
     session_state,code = None,None
     refresh_token = user.do_refresh_token()
+    print('refresh_token',refresh_token)
     if not refresh_token or 'access_token' not in refresh_token:
         login = user.do_login()
         print('login_ocb',login)
