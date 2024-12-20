@@ -938,7 +938,7 @@ def loginOCB(user):
     refresh_token = user.do_refresh_token()
     if not refresh_token or 'access_token' not in refresh_token:
         login = user.do_login()
-        print(login)
+        print('login_ocb',login)
         if login and 'success' in login and login['success']:
             if 'waiting' in login and login['waiting']:
                 url = login['url']
