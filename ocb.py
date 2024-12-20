@@ -46,6 +46,10 @@ class OCB:
         self.id = None
         self.fullname = None
         self.pending_transfer = []
+        with open('ocb.json','r', encoding='utf-8') as f:
+            self.data_bank2 = json.load(f)
+        with open('banks.json','r', encoding='utf-8') as f:
+            self.data_bank = json.load(f)
         if not os.path.exists(self.file):
             self.username = username
             self.password = password
@@ -812,18 +816,15 @@ class OCB:
             'data':response.json()
         }
     def mapping_bank_code(self,bank_name):
-        with open('banks.json','r', encoding='utf-8') as f:
-            data = json.load(f)
+        data = self.data_bank
         for bank in data['data']:
             if bank['shortName'].lower() == bank_name.lower():
                 return bank['bin']
     def mapping_bank_code_ocb(self,bank_name):
-        with open('banks.json','r', encoding='utf-8') as f:
-            data = json.load(f)
+        data = self.data_bank
         for bank in data['data']:
             if bank['shortName'].lower() == bank_name.lower():
-                with open('ocb.json','r', encoding='utf-8') as f:
-                    data_2 = json.load(f)
+                data_2 = self.data_bank2
                 for bank_2 in data_2:
                     if bank_2['napasBankCode'] == bank['bin']:
                         return bank_2['coreBankId']
