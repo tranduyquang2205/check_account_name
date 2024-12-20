@@ -808,6 +808,7 @@ class OCB:
             result = response.json()
             return result
         else:
+            self.is_login = False
             self.login_ocb(ben_account_number, 'OCB')
             return {
             'success': False,
@@ -863,6 +864,7 @@ class OCB:
             result = response.json()
             return result
         else:
+            self.is_login = False
             self.login_ocb(ben_account_number, bank_name)
             return {
             'success': False,
@@ -877,6 +879,7 @@ class OCB:
     def get_bank_name(self, ben_account_number, bank_name):
         refresh_token = self.do_refresh_token()
         if not refresh_token or  'access_token' not in refresh_token:
+            self.is_login = False
             self.login_ocb(ben_account_number, bank_name)
         
         if bank_name == 'OCB':
@@ -955,6 +958,7 @@ def loginOCB(user):
     refresh_token = user.do_refresh_token()
     print('refresh_token',refresh_token)
     if not refresh_token or 'access_token' not in refresh_token:
+        user.is_login = False
         login = user.do_login()
         print('login_ocb',login)
         if login and 'success' in login and login['success']:
