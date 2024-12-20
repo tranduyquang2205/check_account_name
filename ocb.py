@@ -946,8 +946,8 @@ class OCB:
         self.waiting = False
         if not code:
             continue_check = self.continue_check_session(url)
-                # Extract the code from the URL
-            code = continue_check.split('code=')[1]
+            if continue_check:
+                code = continue_check.split('code=')[1]
         try:
             token = self.get_token(code, "https://ocbomni.ocb.com.vn/en-US/select-context")
             if token:
