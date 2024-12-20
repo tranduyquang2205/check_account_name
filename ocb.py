@@ -953,7 +953,7 @@ class OCB:
             return None
 
 def loginOCB(user):
-    session_state,code = None,None
+    _code = None
     refresh_token = user.do_refresh_token()
     print('refresh_token',refresh_token)
     if not refresh_token or 'access_token' not in refresh_token:
@@ -986,19 +986,19 @@ def loginOCB(user):
                 
                 print('login success')
                 session_state = login['session_state']
-                code = login['code']
+                _code = login['code']
             else:
                 
                 print('login success')
         else:
             return login
-        if not code:
+        if not _code:
             continue_check = user.continue_check_session(url)
                 # Extract the code from the URL
             if continue_check:
-                code = continue_check.split('code=')[1]
+                _code = continue_check.split('code=')[1]
         try:
-            token = user.get_token(code, "https://ocbomni.ocb.com.vn/en-US/select-context")
+            token = user.get_token(_code, "https://ocbomni.ocb.com.vn/en-US/select-context")
             if token:
                 result = sync_balance_ocb(user)
                 result['message'] = 'Đăng nhập thành công'
