@@ -197,14 +197,14 @@ class OCB:
             self.change_proxy()
             return self.get_login_url()
         if session_state and code:
-            return self.get_login_url()
+            return session_state,code
         # with open("login_url.html", "w", encoding="utf-8") as file:
         #     file.write(res.text)
         ### self.save_cookies(self.session.cookies)
         pattern = r'action="(.*)" method'
         matches = re.search(pattern, res.text)
         url = matches.group(1).replace("amp;", "&").replace("&&", "&")
-        return url
+        return url,False
     def send_request_login(self,request_url):
         headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -236,36 +236,39 @@ class OCB:
         return result,url
         
     def do_login(self):
-        login_url = self.get_login_url()
-        headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'same-site',
-            'Sec-Fetch-User': '?1',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': self.user_agent,
-            'sec-ch-ua': '"Chromium";v="130", "Microsoft Edge";v="130", "Not?A_Brand";v="99"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
+        login_url,session_still = self.get_login_url()
+        if session_still:
+            session_state,code = login_url,session_still
+        else:
+            headers = {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Cache-Control': 'max-age=0',
+                'Connection': 'keep-alive',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'same-site',
+                'Sec-Fetch-User': '?1',
+                'Upgrade-Insecure-Requests': '1',
+                'User-Agent': self.user_agent,
+                'sec-ch-ua': '"Chromium";v="130", "Microsoft Edge";v="130", "Not?A_Brand";v="99"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"Windows"',
+                }
+            data = {
+                'username': self.username,
+                'password': self.password,
+                'locale': 'vi',
+                'rememberMe': 'on'
             }
-        data = {
-            'username': self.username,
-            'password': self.password,
-            'locale': 'vi',
-            'rememberMe': 'on'
-        }
-        # ### self.load_cookies()
-        res = self.curl_post(login_url,headers=headers, data=data,proxies=self.proxies)
-        # with open("login_request.html", "w", encoding="utf-8") as file:
-        #     file.write(res.text)
-        ### self.save_cookies(self.session.cookies)
-        result = res.text
-        # print('url_after_login',res.url)
-        session_state,code = self.get_session_and_code(res.url)
+            # ### self.load_cookies()
+            res = self.curl_post(login_url,headers=headers, data=data,proxies=self.proxies)
+            # with open("login_request.html", "w", encoding="utf-8") as file:
+            #     file.write(res.text)
+            ### self.save_cookies(self.session.cookies)
+            result = res.text
+            # print('url_after_login',res.url)
+            session_state,code = self.get_session_and_code(res.url)
         if session_state and code:
             self.is_login = True
             return {
@@ -947,7 +950,6 @@ def loginOCB(user):
     refresh_token = user.do_refresh_token()
     print('refresh_token',refresh_token)
     if not refresh_token or 'access_token' not in refresh_token:
-        user.is_login = False
         login = user.do_login()
         print('login_ocb',login)
         if login and 'success' in login and login['success']:
