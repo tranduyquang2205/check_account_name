@@ -891,7 +891,7 @@ class OCB:
         login = self.do_login()
         if login and 'success' in login and login['success']:
             print('waiting')
-            if 'waiting' in login and login['waiting']:
+            if login and  'waiting' in login and login['waiting']:
                 url = login['url']
                 i = 1
                 status = "PENDING"
@@ -940,7 +940,7 @@ def loginOCB(user):
         login = user.do_login()
         print('login_ocb',login)
         if login and 'success' in login and login['success']:
-            if 'waiting' in login and login['waiting']:
+            if login and 'waiting' in login and login['waiting']:
                 url = login['url']
                 i = 1
                 status = "PENDING"
