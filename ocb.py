@@ -995,7 +995,8 @@ def loginOCB(user):
         if not code:
             continue_check = user.continue_check_session(url)
                 # Extract the code from the URL
-            code = continue_check.split('code=')[1]
+            if continue_check:
+                code = continue_check.split('code=')[1]
         try:
             token = user.get_token(code, "https://ocbomni.ocb.com.vn/en-US/select-context")
             if token:
