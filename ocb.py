@@ -278,6 +278,7 @@ class OCB:
                         'session_state': session_state,
                         'code': code
                    }
+        print('session_state_code',session_state,code)
         error_message = self.extract_error_message(result)
         pattern = r'action="(.*)"'
         matches = re.search(pattern, res.text)
