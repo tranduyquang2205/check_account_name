@@ -82,7 +82,11 @@ def log_bank_access(bank_name):
     bank_access_log[bank_name].append(datetime.now())
 
 # Function to check if the bank is available based on the access limit
-def is_bank_available(bank_name):
+def is_bank_available(bank):
+    bank_name = bank.__class__.__name__
+    if bank_name == 'OCB':
+        if not bank.is_login:
+            return False
     current_time = datetime.now()
     access_logs = bank_access_log[bank_name]
     # Filter out the logs that are outside the allowed time window
@@ -157,7 +161,7 @@ def check_bank_name(input: BankInfo):
             print(f"Error processing bank {bank}: {e}")
 
     with ThreadPoolExecutor(max_workers=1) as executor:
-        available_banks = [bank for bank in banks if is_bank_available(bank.__class__.__name__)]
+        available_banks = [bank for bank in banks if is_bank_available(bank)]
         if len(available_banks) < 1:
             return APIResponse.json_format({'result': False, 'message': 'Not enough banks available'})
         selected_banks = random.sample(available_banks, min(1, len(available_banks))) 
@@ -191,7 +195,7 @@ def check_bank_name(input: BankInfo):
             completion_event = threading.Event()
             result_container = []
             with ThreadPoolExecutor(max_workers=1) as executor:
-                available_banks = [bank for bank in remaining_banks if is_bank_available(bank.__class__.__name__)]
+                available_banks = [bank for bank in remaining_banks if is_bank_available(bank)]
                 if len(available_banks) < 1:
                     return APIResponse.json_format({'result': False, 'message': 'Not enough banks available'})
 

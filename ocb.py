@@ -264,6 +264,7 @@ class OCB:
         # print('url_after_login',res.url)
         session_state,code = self.get_session_and_code(res.url)
         if session_state and code:
+            self.is_login = True
             return {
                         'success': True,
                         'code': 200,
@@ -909,16 +910,20 @@ class OCB:
                         if status == "PENDING":
                             time.sleep(2)
                         else:
+                            self.is_login = True
                             print('login success')
                             break
                     i += 1
             elif 'session_state' in login:
+                self.is_login = True
                 print('login success')
                 session_state = login['session_state']
                 code = login['code']
             else:
+                self.is_login = True
                 print('login success')
         else:
+            self.is_login = False
             return login
         if not code:
             continue_check = self.continue_check_session(url)
@@ -929,6 +934,7 @@ class OCB:
             if token:
                 return self.get_bank_name(ben_account_number, bank_name)
             else:
+                self.is_login = False
                 return None
         except Exception as e:
             return None
@@ -938,6 +944,7 @@ def loginOCB(user):
     refresh_token = user.do_refresh_token()
     print('refresh_token',refresh_token)
     if not refresh_token or 'access_token' not in refresh_token:
+        user.is_login = False
         login = user.do_login()
         print('login_ocb',login)
         if login and 'success' in login and login['success']:
@@ -959,14 +966,17 @@ def loginOCB(user):
                         if status == "PENDING":
                             time.sleep(2)
                         else:
+                            user.is_login = True
                             print('login success')
                             break
                     i += 1
             elif 'session_state' in login:
+                user.is_login = True
                 print('login success')
                 session_state = login['session_state']
                 code = login['code']
             else:
+                user.is_login = True
                 print('login success')
         else:
             return login
