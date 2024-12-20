@@ -809,8 +809,6 @@ class OCB:
             result = response.json()
             return result
         else:
-            
-            self.login_ocb(ben_account_number, 'OCB')
             return {
             'success': False,
             'message': 'Please relogin!',
@@ -865,8 +863,6 @@ class OCB:
             result = response.json()
             return result
         else:
-            
-            self.login_ocb(ben_account_number, bank_name)
             return {
             'success': False,
             'message': 'Please relogin!',
@@ -880,7 +876,6 @@ class OCB:
     def get_bank_name(self, ben_account_number, bank_name):
         refresh_token = self.do_refresh_token()
         if not refresh_token or  'access_token' not in refresh_token:
-            
             self.login_ocb(ben_account_number, bank_name)
         
         if bank_name == 'OCB':
@@ -953,7 +948,6 @@ class OCB:
             if token:
                 return self.get_bank_name(ben_account_number, bank_name)
             else:
-                
                 return None
         except Exception as e:
             return None
