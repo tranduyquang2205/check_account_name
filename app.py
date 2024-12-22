@@ -84,9 +84,9 @@ def log_bank_access(bank_name):
 # Function to check if the bank is available based on the access limit
 def is_bank_available(bank):
     bank_name = bank.__class__.__name__
-    if bank_name == 'OCB':
-        if bank.waiting:
-            return False
+    # if bank_name == 'OCB':
+    #     if bank.waiting:
+    #         return False
     current_time = datetime.now()
     access_logs = bank_access_log[bank_name]
     # Filter out the logs that are outside the allowed time window
