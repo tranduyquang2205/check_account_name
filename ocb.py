@@ -192,7 +192,7 @@ class OCB:
         query_string = "&".join([f"{key}={value}" for key, value in params.items()])
         url = f"{base_url}?{query_string}"
 
-        # ### self.load_cookies()
+        self.load_cookies()
         res = self.curl_get(url, headers=headers,proxies=self.proxies)
         # print(url,res)
         # print(res.url)
@@ -229,7 +229,7 @@ class OCB:
         data = {
             'otpChoice': 'PUSH_DEVICE',
         }
-        ### self.load_cookies()
+        self.load_cookies()
         res = self.curl_post(request_url,headers=headers, data=data,proxies=self.proxies)
         # with open("request_login.html", "w", encoding="utf-8") as file:
         #     file.write(res.text)
@@ -266,11 +266,11 @@ class OCB:
                 'locale': 'vi',
                 'rememberMe': 'on'
             }
-            # ### self.load_cookies()
+            self.load_cookies()
             res = self.curl_post(login_url,headers=headers, data=data,proxies=self.proxies)
             # with open("login_request.html", "w", encoding="utf-8") as file:
             #     file.write(res.text)
-            ### self.save_cookies(self.session.cookies)
+            self.save_cookies(self.session.cookies)
             result = res.text
             # print('url_after_login',res.url)
             session_state,code = self.get_session_and_code(res.url)
@@ -883,8 +883,6 @@ class OCB:
         else:
             result =  self.check_bank_name_out(ben_account_number,bank_name)
         if not result or 'accountHolderName' not in result:
-            
-            self.login_ocb(ben_account_number, bank_name)
             return None
         return result
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
