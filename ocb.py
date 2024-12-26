@@ -1,3 +1,4 @@
+import pickle
 import requests
 import json
 import random
@@ -27,7 +28,7 @@ class OCB:
         else:
             self.proxies = None
         self.file = f"data/ocb/users/{account_number}.json"
-        self.cookies_file = f"data/ocb/cookies/{account_number}.json"
+        self.cookies_file = f"data/ocb/cookies/{account_number}.pkl"
         self.session = requests.Session()
         self.state = self.get_imei()
         self.nonce = self.state
@@ -117,18 +118,18 @@ class OCB:
             self.refresh_token = data['refresh_token']
             self.pending_transfer = data['pending_transfer']
             self.user_agent = data['user_agent']
-    def save_cookies(self,cookie_jar):
-        with open(self.cookies_file, 'w') as f:
-            json.dump(cookie_jar.get_dict(), f)
+    def save_cookies(self,s):
+        """Save the current session to a file."""
+        with open(self.cookies_file, 'wb') as file:
+            pickle.dump(self.session.cookies, file)
     def load_cookies(self):
+        """Load a session from a file."""
         try:
-            with open(self.cookies_file, 'r') as f:
-                cookies = json.load(f)
-                self.session.cookies.clear()
-                self.session.cookies.update(cookies)
-                return
-        except (FileNotFoundError, json.decoder.JSONDecodeError):
-            return requests.cookies.RequestsCookieJar()
+            with open(self.cookies_file, 'rb') as file:
+                loaded_cookies = pickle.load(file)
+            self.session.cookies.update(loaded_cookies)
+        except Exception as e:
+            return False
     def change_proxy(self):
             print('change_proxy')
             if not self.proxy_cycle:
@@ -205,7 +206,7 @@ class OCB:
             return session_state,code
         # with open("login_url.html", "w", encoding="utf-8") as file:
         #     file.write(res.text)
-        ### self.save_cookies(self.session.cookies)
+        self.save_cookies(self.session.cookies)
         pattern = r'action="(.*)" method'
         matches = re.search(pattern, res.text)
         url = matches.group(1).replace("amp;", "&").replace("&&", "&")
@@ -233,7 +234,7 @@ class OCB:
         res = self.curl_post(request_url,headers=headers, data=data,proxies=self.proxies)
         # with open("request_login.html", "w", encoding="utf-8") as file:
         #     file.write(res.text)
-        ### self.save_cookies(self.session.cookies)
+        self.save_cookies(self.session.cookies)
         result = res.text
         pattern = r'action="(.*)" method'
         matches = re.search(pattern, res.text)
@@ -382,9 +383,9 @@ class OCB:
         data = {
             'oob-authn-action': 'confirmation-poll'
         }
-        ### self.load_cookies()
+        self.load_cookies()
         res = self.curl_post(url, headers=headers,data=data,proxies=self.proxies)
-        ### self.save_cookies(self.session.cookies)
+        self.save_cookies(self.session.cookies)
         result = res.text
 
         return result
@@ -407,9 +408,9 @@ class OCB:
         data = {
             'oob-authn-action': 'confirmation-continue'
         }
-        ### self.load_cookies()
+        self.load_cookies()
         response = self.curl_post(url, headers=headers,data=data,allow_redirects=False,proxies=self.proxies)
-        ### self.save_cookies(self.session.cookies)
+        self.save_cookies(self.session.cookies)
         if response.status_code == 302:
             new_url = response.headers.get('Location')
             return new_url
@@ -442,9 +443,9 @@ class OCB:
         }
 
         url = 'https://identity-omni.ocb.com.vn/auth/realms/backbase/protocol/openid-connect/token'
-        ### self.load_cookies()
+        self.load_cookies()
         response = self.curl_post(url, headers=headers, data=data,proxies=self.proxies)
-        ### self.save_cookies(self.session.cookies)
+        self.save_cookies(self.session.cookies)
         result = response.json()
 
         if 'access_token' in result:
@@ -476,10 +477,10 @@ class OCB:
         query_string = "&".join([f"{key}={value}" for key, value in params.items()])
         url = f"{base_url}?{query_string}"
         
-        ### self.load_cookies()
+        self.load_cookies()
         # print(url)
         res = self.curl_get(url, headers=headers,proxies=self.proxies)
-        ### self.save_cookies(self.session.cookies)
+        self.save_cookies(self.session.cookies)
         # print(res.url)
         # with open("logout.html", "w", encoding="utf-8") as file:
         #     file.write(res.text)
@@ -511,9 +512,9 @@ class OCB:
             'scope': 'openid',
             'ui_locales': 'vi'
         }
-        ### self.load_cookies()
+        self.load_cookies()
         response = self.curl_post('https://identity-omni.ocb.com.vn/auth/realms/backbase/protocol/openid-connect/token', data=data, headers=headers,proxies=self.proxies)
-        ### self.save_cookies(self.session.cookies)
+        self.save_cookies(self.session.cookies)
         if response:
             try:
                 result = response.json()
@@ -546,10 +547,10 @@ class OCB:
         'sec-ch-ua-platform': '"Windows"'
         }
 
-        ### self.load_cookies()
+        self.load_cookies()
         url = 'https://ocbomni.ocb.com.vn/api/arrangement-manager/client-api/v2/arrangement-views/account-overview/groups/current-account-vnd?_limit=100'
         response = self.curl_get(url, headers=headers,proxies=self.proxies)
-        ### self.save_cookies(self.session.cookies)
+        self.save_cookies(self.session.cookies)
         if response.status_code == 200:
             result = response.json()
             return result
@@ -581,9 +582,9 @@ class OCB:
 
 
         url = f'https://ocbomni.ocb.com.vn/api/sync-dis/client-api/v1/transactions/refresh/arrangements'
-        ### self.load_cookies()
+        self.load_cookies()
         response = self.curl_post(url, headers=headers, data=payload,proxies=self.proxies)
-        ### self.save_cookies(self.session.cookies)
+        self.save_cookies(self.session.cookies)
         return response
     def sync(self):
         payload = json.dumps({
@@ -612,9 +613,9 @@ class OCB:
 
 
         url = f'https://ocbomni.ocb.com.vn/api/bb-ingestion-service/client-api/v2/accounts/sync'
-        ### self.load_cookies()
+        self.load_cookies()
         response = self.curl_post(url, headers=headers, data=payload,proxies=self.proxies)
-        ### self.save_cookies(self.session.cookies)
+        self.save_cookies(self.session.cookies)
         return response
     def get_transactions(self, from_date="2022-11-15", to_date="2022-12-03",limit=100):
         list_transactions = []
@@ -664,9 +665,9 @@ class OCB:
 
 
         url = f'https://ocbomni.ocb.com.vn/api/transaction-manager/client-api/v2/transactions?bookingDateGreaterThan={from_date}&bookingDateLessThan={to_date}&arrangementId={self.id}&from={page}&size={limit}&orderBy=bookingDate&direction=DESC'
-        ### self.load_cookies()
+        self.load_cookies()
         response = self.curl_get(url, headers=headers,proxies=self.proxies)
-        ### self.save_cookies(self.session.cookies)
+        self.save_cookies(self.session.cookies)
         # with open("transaction"+str(page)+".html", "w", encoding="utf-8") as file:
         #     file.write(response.text)
         if response.status_code == 200:
